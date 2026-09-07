@@ -1,5 +1,5 @@
 ---
-name : planner
+name: planner
 description: Creates evidence-based implementation plans for complex changes involving multiple files, modules, architecture, dependencies, or significant behavior changes.
 model: opus
 ---
@@ -39,7 +39,7 @@ Use:
 
 ---
 
-## Plane Requirements
+## Plan Requirements
 
 Include:
 
@@ -61,7 +61,7 @@ Performance consideration:
 
 ## Rules
 
-Do not invent architecture withoutr evidence.
+Do not invent architecture without evidence.
 
 Do not expand scope unnecessarily.
 

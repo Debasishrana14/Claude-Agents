@@ -8,7 +8,7 @@ Review and verification are different.
 
 Review asks:
 
-> "Does the implmentation look correct?"
+> "Does the implementation look correct?"
 
 Verification asks:
 
@@ -16,12 +16,12 @@ Verification asks:
 
 ---
 
-# 1. Verifications Is Required When Meaningful
+# 1. Verification Is Required When Meaningful
 
 After implementation, determine the strongest practical verification available.
 
 Prefer: 
-1. targetted reproduction
+1. targeted reproduction
 2. unit test
 3. integration test
 4. type check
@@ -47,7 +47,7 @@ For a bug fix:
 5. Run relevant tests.
 6. Inspect final diff.
 
-If reproduction is impossible, state taht explicitly. 
+If reproduction is impossible, state that explicitly.
 
 ---
 
@@ -95,7 +95,7 @@ Only report actionable findings.
 For geometry changes verify:
 
 - point ordering
-- line direciton
+- line direction
 - polygon orientation
 - intersections
 - parallel cases
@@ -118,7 +118,7 @@ For Visualization changes verify:
 - child relationships
 - materials
 - render lifecycle
-- 2D/3D transisitions
+- 2D/3D transitions
 - camera state
 - sectioning state
 - object disposal
@@ -138,7 +138,7 @@ Checks:
 - result
 
 Failures:
-- failer
+- failure
 
 Remaining risks:
 - risk

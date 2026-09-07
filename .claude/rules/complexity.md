@@ -13,7 +13,7 @@ Do NOT perform formal complexity analysis for every task.
 Consider complexity analysis when modifying:
 
 - algorithms
-- loops over large collectionsd
+- loops over large collections
 - nested loops
 - graph traversal
 - geometry algorithms
@@ -22,7 +22,7 @@ Consider complexity analysis when modifying:
 - searching
 - sorting
 - caching
-- renering pipelines
+- rendering pipelines
 - thousands of Three.js objects.
 - repeated scene traversal
 - event processing
@@ -72,7 +72,7 @@ For geometry algorithms consider:
 - number of points
 - number of edges
 - number of polygons
-- pairwise comparisions
+- pairwise comparisons
 - repeated intersection calculations
 - spatial indexing
 - tolerance operations
@@ -89,7 +89,7 @@ or worse.
 
 # 5. Rendering
 
-For visualziation consider:
+For visualization consider:
 
 - number of Three.js objects.
 - traversal count

@@ -1,0 +1,41 @@
+{
+  "effortLevel": "low",
+  "extraKnownMarketplaces": {
+    "claude-plugins-official": {
+      "source": {
+        "source": "git",
+        "url": "https://github.com/anthropics/claude-plugins-official.git"
+      }
+    }
+  },
+  "switchModelsOnFlag": true,
+  "model": "opus[1m]",
+  "statusLine": {
+    "type": "command",
+    "command": "node C:/Users/SSD/.claude/scripts/statusline.mjs",
+    "refreshInterval": 2
+  },
+  "percentage": 70,
+  "phase": "Implement",
+  "totalAgents": 4,
+
+  "activeAgents": [
+    {
+      "id": "agent-123",
+      "type": "implementer",
+      "model": "Sonnet",
+      "status": "running"
+    }
+  ],
+
+  "completedAgents": [
+    {
+      "type": "research",
+      "model": "Haiku"
+    },
+    {
+      "type": "experiment",
+      "model": "Sonnet"
+    }
+  ]
+}

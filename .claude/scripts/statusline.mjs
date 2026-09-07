@@ -1,5 +1,9 @@
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
+const stateDirectory = path.resolve(scriptDirectory, "..", "state");
 
 let input = "";
 
@@ -28,14 +32,10 @@ process.stdin.on("end", () => {
       data.cost?.total_duration_ms ?? 0;
 
     const fiveHour =
-      Math.round(
-        data.rate_limits?.five_hour?.used_percentage ?? 0
-      );
+      data.rate_limits?.five_hour?.used_percentage;
 
     const sevenDay =
-      Math.round(
-        data.rate_limits?.seven_day?.used_percentage ?? 0
-      );
+      data.rate_limits?.seven_day?.used_percentage;
 
     const cwd =
       data.workspace?.current_dir ??
@@ -45,19 +45,13 @@ process.stdin.on("end", () => {
     const projectName =
       path.basename(cwd);
 
-    /*
-     * Optional orchestration progress file.
-     *
-     * The main agent can create:
-     *
-     * scratchpad/claude-progress.json
-     */
+    const sessionId = data.session_id ?? "default";
+    const safeSessionId = sessionId.replace(/[^a-zA-Z0-9_-]/g, "_");
 
     const progressFile =
       path.join(
-        cwd,
-        "scratchpad",
-        "claude-progress.json"
+        stateDirectory,
+        `${safeSessionId}.progress.json`
       );
 
     let progress = null;
@@ -130,8 +124,23 @@ process.stdin.on("end", () => {
       `${agentText} | Context: ${contextBar} ${context}%/${contextSize}`
     );
 
+    const limits = [];
+
+    if (fiveHour != null) {
+      limits.push(`5h: ${Math.round(fiveHour)}%`);
+    }
+
+    if (sevenDay != null) {
+      limits.push(`7d: ${Math.round(sevenDay)}%`);
+    }
+
+    const limitsText =
+      limits.length > 0
+        ? ` | ${limits.join(" | ")}`
+        : "";
+
     console.log(
-      `Cost: $${cost.toFixed(2)} | Time: ${minutes}m ${seconds}s | 5h: ${fiveHour}% | 7d: ${sevenDay}%`
+      `Cost: $${cost.toFixed(2)} | Time: ${minutes}m ${seconds}s${limitsText}`
     );
   } catch {
     console.log("[Claude] status unavailable");

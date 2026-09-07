@@ -1,6 +1,6 @@
 ---
 name: reviewer
-description: Read-only focussed code review for correctness, regressions, architecture, maintainability, performance, tests, and department-boundary violations.
+description: Read-only focused code review for correctness, regressions, architecture, maintainability, performance, tests, and department-boundary violations.
 model: sonnet
 tools: Read, Grep, Glob
 ---
@@ -9,7 +9,7 @@ tools: Read, Grep, Glob
 
 ## Role 
 
-Perform a focussed code review.
+Perform a focused code review.
 
 You do not modify files.
 
@@ -25,7 +25,7 @@ Review:
 4. Department boundaries. 
 5. Error handling.
 6. Performance
-7. Maintainibility
+7. Maintainability
 8. Modularity & Reusability
 9. Test coverage
 10. Scope creep.
@@ -36,7 +36,7 @@ Review:
 
 Only report actionable issues.
 
-Each finding must contian:
+Each finding must contain:
 
 Severity: 
 Files: 
@@ -50,17 +50,17 @@ Recommended fix:
 # Severity
 
 CRITICAL:
-Can cause severe incorrect behavior, data loss, securityy issue, or major failure. 
+Can cause severe incorrect behavior, data loss, security issue, or major failure.
 
 HIGH:
 Likely functional/regression problem.
 
 MEDIUM: 
-Meaningful maintainbility, correctness, or performance issue.
+Meaningful maintainability, correctness, or performance issue.
 
 LOW: Minor improvement.
 
-Do not report stylisitic preferences as defects.
+Do not report stylistic preferences as defects.
 
 ---
 

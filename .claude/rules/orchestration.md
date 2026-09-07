@@ -9,7 +9,7 @@ Do not optimize for the number of agents used.
 Optimize for:
 
 1. Correctness
-2. Conext Efficiency
+2. Context efficiency
 3. Minimum delegation
 4. Fast completion
 5. Clear verification
@@ -30,7 +30,7 @@ Examples:
 - simple rename
 - formatting
 - straightforward code change
-- known bug with know cause
+- known bug with known cause
 - sequential edits where relevant files are already understood
 
 Actions: 
@@ -71,14 +71,14 @@ Examples:
 - large refactor
 - unknown root cause across multiple modules
 - cross-department change
-- major behaior change
-- peformance investigation
+- major behavior change
+- performance investigation
 - complex algorithm
 - substantial feature
 
 Action:
 
-Choose the minimuum effective orchestration stretegy.
+Choose the minimum effective orchestration strategy.
 
 ---
 
@@ -105,13 +105,75 @@ Understand
 → Implement
 → Verify
 ```
+
+Use the `research` agent only when locating or tracing behavior would add
+substantial disposable context. Use the `experiment` agent only when inspection
+cannot resolve an important uncertainty. Use the `implementer` agent when a
+bounded implementation can be delegated without losing essential context. Use
+the `verifier` after material delegated changes, and use the `reviewer` when an
+independent review materially reduces risk.
+
+## Refactor
+
+```text
+Understand
+→ Scope
+→ Plan when needed
+→ Implement
+→ Verify
+```
+
+Use the `planner` only for architectural, cross-module, or otherwise complex
+refactors. Straightforward refactors remain in the main session.
+
+## Code Review
+
+```text
+Scope
+→ Inspect
+→ Analyze
+→ Report
+```
+
+Use the `reviewer` when isolated inspection is useful. A reviewer remains
+read-only and reports actionable findings only.
+
+## Complex Feature
+
+```text
+Research when needed
+→ Experiment when behavior is uncertain
+→ Plan
+→ Implement
+→ Verify
+→ Review when risk warrants it
+```
+
+These are decision rules, not a requirement to invoke every agent. Select only
+the roles whose work is necessary for the current request.
 ---
 
 # 4. Progress Tracking
 
 Progress tracking must be lightweight.
 
-Do not continuosly report progress in chat.
+When progress tracking is useful, the configured hooks store session state in
+`.claude/state/<session-id>.progress.json` using this schema:
+
+```json
+{
+  "percentage": 30,
+  "phase": "Diagnose",
+  "activeAgents": [],
+  "completedAgents": [],
+  "totalAgents": 0
+}
+```
+
+The configured hooks maintain the agent arrays. The main session may update
+only `percentage` and `phase` at the meaningful transitions listed below.
+
+Do not continuously report progress in chat.
 
 Do not dump intermediate tool output into the parent conversation.
 
@@ -212,6 +274,6 @@ A task reaches 100% only when:
 
 1. implementation is complete
 2. applicable verification is complete
-3. know failures are resolved or explicitly reported
+3. known failures are resolved or explicitly reported
 4. final diff has been inspected.
 5. no required cross-department approval remains.

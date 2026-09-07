@@ -40,7 +40,7 @@ Agents should read other departments when necessary to understand:
 - data flow
 - rendering flow
 - geometry dependencies
-- sectioing dependencies
+- sectioning dependencies
 
 Reading outside the department does NOT require approval.
 
@@ -109,16 +109,16 @@ Before adding a cross-department dependency determine:
 Before modifying a department, load its department-specific instructions.
 
 DataLayer:
-departments/datalayer.md
+.claude/departments/datalayer.md
 
 Geometry:
-departments/geometry.md
+.claude/departments/geometry.md
 
 Visualization:
-departments/visualization.md
+.claude/departments/visualization.md
 
 SectioningBoard:
-departments/sectioningBoard.md
+.claude/departments/sectioningBoard.md
 
 Only load the relevant department documentation.
 

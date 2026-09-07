@@ -1,6 +1,6 @@
-# Global Claude Code Working Agreement
+# Claude Code Working Agreement
 
-These instructions apply to my Claude Code sessions across projects
+These instructions apply when Claude Code is launched in this project.
 
 ## Core principles
 
@@ -26,26 +26,26 @@ Bug fixes, refactors, and code reviews should use the lightweight workflows defi
 
 ## Shared orchestration rules
 
-@C:\Users\SSD\.claude\rules\orchestration.md
+@.claude/rules/orchestration.md
 
 ## Department boundaries
 
-@C:\Users\SSD\.claude\rules\departments.md
+@.claude/rules/departments.md
 
 ## Verification
 
-@C:\Users\SSD\.claude\rules\verification.md
+@.claude/rules/verification.md
 
 ## Complexity
 
-@C:\Users\SSD\.claude\rules\complexity.md
+@.claude/rules/complexity.md
 
+## Research and experimentation
 
-context_window.used_percentage
-context_window.remaining_percentage
-context_window.total_input_tokens
-context_window.total_output_tokens
-context_window.context_window_size
+Load these rules when the corresponding workflow is used:
+
+- Research: @.claude/rules/research.md
+- Experimentation: @.claude/rules/experimentation.md
 
 
                        USER
@@ -95,7 +95,7 @@ context_window.context_window_size
             │               │               │
             └───────────────┼───────────────┘
                             ▼
-                    progress.json
+       .claude/state/<session-id>.progress.json
                             │
                             ▼
                      statusline.mjs
@@ -132,4 +132,6 @@ Locate     Research
                     ▼
                  Verify
 
-Never exceed 100,000 tokens per session [use variable here we will update it later]
+Use `context_window.used_percentage` from the status line as advisory context
+visibility. Do not impose a fixed token ceiling because available context varies
+by model and session configuration.

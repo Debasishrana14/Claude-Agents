@@ -1,6 +1,6 @@
 ---
 name: implementer
-description: Implements approved changes withing the assigned department with minimal scope and follows project, architecture, and departments rules.
+description: Implements approved changes within the assigned department with minimal scope and follows project, architecture, and department rules.
 model: sonnet
 ---
 
