@@ -1,76 +1,100 @@
-# DataLayer Department
+# Configurator Data and Rules Domain
 
-## Responsibility
+## Validated scope
 
-Owns application data representation and data lifecycle.
+This document describes the legacy configurator domain rooted at:
 
-Typical responsibilities:
+```text
+src/app/configurator/common/data-layer/**
+```
 
-- domain data models
-- state representation
-- serialization
-- deserialization
-- persistence
-- data transformations
-- data validation where appropriate
-- production/report data structures
+Despite its name, this is not merely persistence or API data access. Current
+code places FG-system rules, design derivation, raw-material allocation,
+production calculations, formula solving, compatibility, and technical
+limitations here.
 
----
+Typical owned paths include:
 
-# Authority
+```text
+common/data-layer/DesignDataHelper/**
+common/data-layer/FGSystemRulesHelper/**
+common/data-layer/FormulaSolver/**
+common/data-layer/RMData/**
+common/data-layer/TechnicalLimitations/**
+common/data-layer/production-values/**
+common/data-layer/_models/**
+common/data-layer/_services/**
+```
 
-Full modification authority within DataLayer-owned code.
+This document does not automatically own general application services under
+`src/app/@shared/**`, feature services under `configurator-new/**`, HTTP/API
+clients, or the separate `projects/machining-engine/**` context.
 
-Cross-department modifications require user approval.
+## Responsibilities
 
----
+- Design and FG-system rules.
+- Compatibility and technical-limit evaluation.
+- Raw-material and part-allocation state.
+- Formula and production-value calculation.
+- Domain mutations such as frame, sash, mullion, coupler, glass, gasket,
+  partition, and variable updates.
+- Data contracts consumed by geometry, visualization, sectioning, reports, and
+  serialization.
 
-# Rules
+## Real dependency constraints
 
-1. Keep domain data independent from rendering concerns.
-2. Do not introduce Three.js objects into pure data structures unless explicitly required by architecture.
-3. Avoid storing derived data when it can be safely calculated.
-4. Preserve serialization compatibility unless the task explicitly changes it.
-5. Do not introduce geometry logic into DataLayer merely for convenience.
-6. Maintain clear ownership of mutable state.
-7. Avoid circular dependencies.
+The existing domain depends extensively on `common/geometry-layer/**`; do not
+pretend the dependency direction is pure Data → Geometry. Many rules accept or
+mutate `Polygon2D`, `Line2D`, and related geometric objects.
 
----
+For new work:
 
-# Data Integrity
+- Data/rule code may consume stable geometry primitives and queries.
+- Avoid introducing new dependencies on scene objects, materials, cameras,
+  renderers, labels, DOM elements, or sectioning presentation.
+- Do not move an existing cross-dependency during a bug fix unless the task is
+  explicitly architectural.
+- If a rule must cause a visual change, produce or mutate the agreed domain
+  state/event contract; visualization owns its representation.
 
-Pay attention to:
+## Baton passed downstream
 
-- nullability
-- undefined values
-- stale references
-- object identity
-- serialization compatibility
-- default values
-- backward compatibility
+Return a compact contract containing, as applicable:
 
----
+- changed domain fields and collections;
+- identity and ownership of mutated polygons/lines/parts;
+- units, coordinate-space assumptions, and tolerances;
+- ordering and nullability guarantees;
+- lifecycle or recalculation triggers;
+- error/restriction outcomes;
+- evidence and focused tests.
 
-# Performance
+Geometry or visualization may request this contract before Data work begins.
+That request does not authorize edits outside the approved Data paths.
 
-Be careful with:
+## Representative scenarios
 
-- large collections
-- repeated transformations
-- unnecessary cloning
-- repeated serialization
-- expensive getters
-- deep copies
+### Rule changes geometry-bearing domain objects
 
----
+Data owns the business decision and mutation contract. Geometry owns reusable
+mathematical operations. Visualization owns mesh/material/label updates. Verify
+the domain value and at least one downstream consumer.
 
-# Testing
+### Production length is incorrect
 
-Prefer tests for:
+Start in `production-values/**`, then trace the geometry inputs it consumes.
+Do not classify the issue as Geometry merely because lengths or polygons occur.
 
-- serialization
-- deserialization
-- transformations
-- state transitions
-- edge cases
-- backward compatibility
+### API or Angular service state is wrong
+
+Do not automatically assign it here. Locate the actual feature or shared
+service owner first; the legacy folder name is not a universal DataLayer.
+
+## Verification
+
+- Domain invariants and mutation scope.
+- Units, rounding, tolerances, and null behavior.
+- Compatibility/restriction outcomes.
+- Recalculation after edit, undo/redo, load, and copy where relevant.
+- Focused rule/production tests.
+- Downstream geometry and visualization contract compatibility.

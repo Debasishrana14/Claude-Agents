@@ -1,96 +1,98 @@
-# Visualization Department
+# Configurator Visualization Domain
 
-## Responsibility
+## Validated scope
 
-Owns visual representation and rendering behavior.
+Visualization is spread across several legacy paths; it is not confined to the
+folder named `visualization-layer`.
 
-Typical responsibilities:
+Primary paths include:
 
-- Three.js objects
-- Mesh
-- Geometry
-- Material
-- Group
-- Object3D
-- CSS3DObject
-- scene management
-- camera
-- rendering
-- 2D/3D visualization
-- visual state
-- disposal
-- visibility
+```text
+src/app/configurator/common/visualization-layer/**
+src/app/configurator/common/3d-config/visualization/**
+src/app/configurator/common/3d-config/3d-helpers/**
+src/app/configurator/common/3d-config/label-helpers/**
+src/app/configurator/common/3d-objects/**
+```
 
----
+Related orchestration and shared state may live in:
 
-# Authority
+```text
+common/3d-config/shared/services/visualization.service.ts
+common/3d-config/data-helpers/models/VisualizationDataHelper.ts
+common/geometry-layer/drawing-board/**
+```
 
-Full modification authority within Visualization-owned code.
+Those related files are overlap zones, not automatically writable under a
+Visualization assignment. `sectioningView/**`, manufacturing drawing, and
+`projects/machining-engine/**` own their feature-specific rendering unless the
+task explicitly assigns those paths.
 
-Cross-department modifications require user approval.
+## Responsibilities
 
----
+- Three.js scene representation, meshes, lines, materials, textures, labels,
+  helpers, visibility, transforms, and rendering state.
+- Realistic-view presentation and material selection.
+- Mapping agreed Data and Geometry contracts into visible objects.
+- Scene lifecycle: create, attach, update, hide/show, detach, and dispose.
+- View-mode transitions where the assigned path owns them.
 
-# Rules
+## Boundaries
 
-1. Do not mix domain data logic into rendering objects.
-2. Do not create duplicate Three.js objects without explicit reason.
-3. Dispose resources when ownership ends.
-4. Preserve scene/object lifecycle.
-5. Avoid unnecessary scene traversal.
-6. Avoid creating materials/geometries repeatedly.
-7. Preserve 2D/3D state transitions.
-8. Do not use renderOrder as a first-choice fix for lifecycle or depth problems.
+- Do not make meshes, labels, `userData`, or scene traversal the authoritative
+  business-data store when an existing domain contract is available.
+- Do not repair incorrect geometry with arbitrary visual offsets, `renderOrder`,
+  depth flags, or duplicate objects without establishing the root cause.
+- Do not mutate Data rules merely to simplify rendering without a negotiated
+  contract.
+- Preserve object identity when callers retain references; otherwise document
+  replacement and cleanup semantics.
+- Treat the Three.js fields embedded in `Polygon2D` and drawing-board objects as
+  legacy shared state requiring cross-domain impact analysis.
 
----
+## Baton required from upstream
 
-# Object Lifecycle
+Before implementation, request only what rendering needs:
 
-When modifying visual objects consider:
+- geometry identity and coordinate space;
+- domain state that controls appearance;
+- update/recalculation trigger;
+- visibility and view-mode rules;
+- ownership and disposal responsibility;
+- performance scale such as expected object count.
 
-Creation
-→ attachment
-→ update
-→ visibility
-→ replacement
-→ disposal
+Return downstream evidence about created/reused/disposed objects and visual
+state transitions rather than returning raw scene dumps.
 
-Ensure stale objects do not remain in the scene.
+## Representative scenarios
 
----
+### Correct geometry, wrong material or visibility
 
-# 2D / 3D
+Visualization owns the fix. Verify normal and realistic modes, transitions,
+updates, and disposal.
 
-When changing view transitions verify:
+### Object is duplicated after an edit
 
-- object creation
-- object removal
-- visibility
-- material state
-- camera state
-- scene hierarchy
-- object references
-- disposal
+Trace creation, attachment, retained references, removal, and re-entry. Do not
+only hide the duplicate.
 
----
+### Wrong shape is displayed
 
-# Performance
+Compare the upstream polygon/line contract with the mesh-building input. Route
+incorrect coordinates to Geometry or domain selection to Data; do not silently
+compensate in rendering.
 
-Pay attention to:
+### Machining preview defect
 
-- object count
-- draw calls
-- material count
-- geometry count
-- scene traversal
-- repeated lookup
-- allocations
-- unnecessary updates
+Route to `projects/machining-engine/src/core|preview|camera|annotation|pick/**` as
+its own context, not to the legacy configurator Visualization department.
 
----
+## Verification
 
-# Three.js
-
-Prefer existing project abstractions over direct Three.js manipulation when they exist.
-
-Do not introduce new rendering abstractions without evidence that existing abstractions are insufficient.
+- Scene membership and parent/child relationships.
+- Local/world transforms and camera state.
+- Object, material, geometry, texture, and listener disposal.
+- Duplicate and stale objects.
+- Normal/realistic and 2D/3D transitions.
+- Render-on-demand and animation-loop lifecycle.
+- Representative large designs for avoidable traversal/allocation regressions.

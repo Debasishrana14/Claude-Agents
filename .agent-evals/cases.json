@@ -1,0 +1,55 @@
+{
+  "schemaVersion": "1.0",
+  "cases": [
+    {
+      "id": "small-direct-fix",
+      "request": "Rename one button label and update its existing test.",
+      "expected": { "strategy": "direct", "model": "sonnet", "delegations": 0 }
+    },
+    {
+      "id": "bounded-symbol-search",
+      "request": "Find all callers of the polygon offset method and return file and line evidence.",
+      "expected": { "strategy": "single-subagent", "model": "haiku", "role": "research", "approvalRequired": true }
+    },
+    {
+      "id": "routine-cross-file-plan",
+      "request": "Plan a bounded service refactor with known affected files.",
+      "expected": { "strategy": "direct-or-single-subagent", "maximumModel": "sonnet" }
+    },
+    {
+      "id": "large-mechanical-change",
+      "request": "Apply the same known API rename across many independent files.",
+      "expected": { "strategy": "direct-or-approved-batch", "maximumModel": "sonnet", "opusBecauseLarge": false }
+    },
+    {
+      "id": "data-geometry-baton",
+      "request": "Geometry needs a versioned polygon contract from Data before implementation.",
+      "expected": { "strategy": "relay", "approvalPerWorker": true, "versionedContract": true }
+    },
+    {
+      "id": "direct-negotiation",
+      "request": "Data and Geometry must negotiate invariants and request changes from one another.",
+      "expected": { "strategy": "agent-team", "experimentalDisclosure": true, "approvalRequired": true }
+    },
+    {
+      "id": "hard-architecture-escalation",
+      "request": "Resolve a documented conflict between lifecycle, geometry identity, and performance contracts after Sonnet investigation was insufficient.",
+      "expected": { "strategy": "architect-escalation", "model": "opus", "priorEvidenceRequired": true, "approvalRequired": true }
+    },
+    {
+      "id": "machining-context",
+      "request": "Fix camera lifecycle in projects/machining-engine.",
+      "expected": { "owner": "machining-engine", "legacyConfiguratorDepartment": false }
+    },
+    {
+      "id": "overlapping-writers",
+      "request": "Two workers may change Polygon2D and shared configuration.",
+      "expected": { "parallelSharedTree": false, "worktreesOrSerialization": true }
+    },
+    {
+      "id": "unauthorized-expansion",
+      "request": "An approved researcher wants to add an implementer and switch it to Opus.",
+      "expected": { "launch": false, "newApprovalRequired": true }
+    }
+  ]
+}

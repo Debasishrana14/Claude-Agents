@@ -2,18 +2,62 @@
 
 ## Departments
 
-The system is divided into:
+For the legacy EVA configurator, use these responsibility domains:
 
-1. DataLayer
-2. GeometryLayer
-3. Visualization
-4. SectioningBoard
+1. Configurator Data and Rules
+2. Configurator Geometry and Drawing Board
+3. Configurator Visualization
+4. Configurator Sectioning View
+
+These are architectural responsibilities, not filesystem permissions by
+themselves. Each consuming project should provide a path-to-owner map in its
+own `CLAUDE.md` or domain documentation. Without that map, assign exact writable
+paths for each task and treat the department documents as review guidance.
+
+Shared contracts, integration tests, configuration, generated files, and files
+with mixed responsibilities must have an explicit owner in the task assignment.
+Do not infer ownership from a filename alone.
+
+## Validated EVA configurator map
+
+When these paths exist in the current repository, use this map as a starting
+point, then apply the overlap rules in each department document:
+
+```text
+src/app/configurator/common/data-layer/**
+  → Configurator Data and Rules
+
+src/app/configurator/common/geometry-layer/**
+  → Configurator Geometry and Drawing Board
+
+src/app/configurator/common/visualization-layer/**
+src/app/configurator/common/3d-config/visualization/**
+src/app/configurator/common/3d-config/3d-helpers/**
+src/app/configurator/common/3d-config/label-helpers/**
+src/app/configurator/common/3d-objects/**
+  → Configurator Visualization
+
+src/app/configurator/sectioningView/**
+  → Configurator Sectioning View
+```
+
+Explicit overlap zones include `Polygon2D`, drawing-board core/view code,
+`common/3d-config/shared/**`, visualization data helpers, shared section helpers,
+manufacturing drawing, and DXF/export flows. Classify those by the behavior
+being changed and assign exact paths; do not grant one department blanket
+authority.
+
+`src/app/configurator-new/**`, `src/app/@shared/**`, and every `projects/**`
+Angular/library context remain outside this four-domain map unless a task
+provides a more specific owner. In particular, `projects/machining-engine/**`
+is its own bounded context.
 
 ---
 
 # 1. Department Authority
 
-An agent assigned to a department has full implementation authority within the department.
+An agent assigned to a department may implement only within the exact paths
+approved for its task.
 
 It may: 
 
@@ -21,7 +65,7 @@ It may:
 - create
 - modify
 - refactor
-- delete
+- delete only when deletion is explicitly included in the approved task
 - test
 
 files owned by its department.
@@ -48,7 +92,8 @@ Reading outside the department does NOT require approval.
 
 # 3. Modifying Other Departments
 
-Cross-department WRITE access requires explicit user approval.
+Writing outside assigned paths requires explicit user approval, whether or not
+the target is described as belonging to the same department.
 
 This includes:
 
@@ -108,16 +153,16 @@ Before adding a cross-department dependency determine:
 
 Before modifying a department, load its department-specific instructions.
 
-DataLayer:
+Configurator Data and Rules:
 .claude/departments/datalayer.md
 
-Geometry:
+Configurator Geometry and Drawing Board:
 .claude/departments/geometry.md
 
-Visualization:
+Configurator Visualization:
 .claude/departments/visualization.md
 
-SectioningBoard:
+Configurator Sectioning View:
 .claude/departments/sectioningBoard.md
 
 Only load the relevant department documentation.
@@ -140,5 +185,13 @@ Identify:
 - required modification
 
 Ask for clarification if ownership affects implementation.
+
+## Contract-first cross-layer work
+
+When one department consumes another department's output, define the contract
+before implementation: data shape, invariants, lifecycle, error behavior, and
+verification evidence. A downstream owner may request an upstream contract, but
+the request does not authorize upstream edits or another delegation. Route it
+through the main coordinator and obtain the required approval.
 
 

@@ -1,1 +1,4 @@
 .claude/state/
+.scratch/coordination/
+.agent-evals/results/
+.agent-evals/tmp/

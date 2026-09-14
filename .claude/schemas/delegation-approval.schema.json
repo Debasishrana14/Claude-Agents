@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://eva.local/schemas/delegation-approval.schema.json",
+  "title": "Delegation Approval",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["approvalId", "workId", "status", "role", "task", "model", "access", "handoff", "singleUse"],
+  "properties": {
+    "approvalId": { "type": "string", "minLength": 1 },
+    "workId": { "type": "string", "minLength": 1 },
+    "status": { "enum": ["proposed", "approved", "rejected", "consumed", "expired"] },
+    "role": { "type": "string", "minLength": 1 },
+    "task": { "type": "string", "minLength": 1 },
+    "model": { "enum": ["haiku", "sonnet", "opus"] },
+    "modelReason": { "type": "string" },
+    "access": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "paths"],
+      "properties": {
+        "mode": { "enum": ["read-only", "write"] },
+        "paths": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true }
+      }
+    },
+    "handoff": { "type": "string", "minLength": 1 },
+    "acceptanceCriteria": { "type": "array", "items": { "type": "string", "minLength": 1 }, "minItems": 1 },
+    "singleUse": { "const": true },
+    "approvedAt": { "type": "string", "format": "date-time" },
+    "consumedAt": { "type": "string", "format": "date-time" }
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "1.0",
+  "repositoryMatch": ["eva-angular-ui", "bugResolution"],
+  "contexts": [
+    {
+      "id": "configurator-data-rules",
+      "paths": ["src/app/configurator/common/data-layer/**"],
+      "instruction": ".claude/departments/datalayer.md"
+    },
+    {
+      "id": "configurator-geometry-board",
+      "paths": ["src/app/configurator/common/geometry-layer/**"],
+      "instruction": ".claude/departments/geometry.md"
+    },
+    {
+      "id": "configurator-visualization",
+      "paths": [
+        "src/app/configurator/common/visualization-layer/**",
+        "src/app/configurator/common/3d-config/visualization/**",
+        "src/app/configurator/common/3d-config/3d-helpers/**",
+        "src/app/configurator/common/3d-config/label-helpers/**",
+        "src/app/configurator/common/3d-objects/**"
+      ],
+      "instruction": ".claude/departments/visualization.md"
+    },
+    {
+      "id": "configurator-sectioning-view",
+      "paths": ["src/app/configurator/sectioningView/**"],
+      "instruction": ".claude/departments/sectioningBoard.md"
+    },
+    {
+      "id": "machining-engine",
+      "paths": ["projects/machining-engine/**"],
+      "instruction": null,
+      "boundary": "independent-context"
+    }
+  ],
+  "explicitAssignmentRequired": [
+    "src/app/configurator/common/geometry-layer/geometry-2d/polygon-2d.ts",
+    "src/app/configurator/common/geometry-layer/drawing-board/**",
+    "src/app/configurator/common/3d-config/shared/**",
+    "src/app/configurator/common/3d-config/data-helpers/**",
+    "src/app/configurator/manufacturing-drawing/**",
+    "src/app/configurator/sectioningView/dxf/**",
+    "src/app/configurator-new/**",
+    "src/app/@shared/**"
+  ]
+}
