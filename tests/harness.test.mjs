@@ -28,6 +28,13 @@ test('routing respects explicit modes and distinguishes diagnosis from repair', 
     ['Explore the feasibility and tradeoffs', 'research-dev-mode'],
     ['Quickly implement the narrow change', 'target-mode'],
     ['What is this harness?', 'conversation'],
+    ['This is a read-only activation check. Without reading files or executing commands, state the harness name.', 'conversation'],
+    ['Just explain how to fix this; do not change files.', 'conversation'],
+    ['Compare approaches and implement the selected fix.', 'dev-mode'],
+    ['Diagnose only. Do not fix or modify the implementation.', 'debug-mode'],
+    ['Could you tell me which workflows are available?', 'conversation'],
+    ['Investigate and repair this issue quickly.', 'target-mode'],
+    ['Continue the saved section-regeneration pilot task for this workspace.', 'dev-mode'],
     ['/coordinate-work build the integration', 'coordinate-work']
   ]) assert.equal(route(prompt).mode, expected, prompt);
 });
@@ -274,4 +281,36 @@ test('parallel hook calls preserve all receipts without lock contention failures
   })));
   assert.ok(results.every(x => x.code === 0), JSON.stringify(results));
   assert.equal(status(home, workspace).recentEvents.length, 8);
+});
+
+test('task inspection and conventional help work without guessing subcommands', t => {
+  const { home, workspace } = fixture(t);
+  const task = beginTask(home, workspace, 'Recover this checkpoint');
+  checkpoint(home, task.id, 'Remaining work is recorded here', 'paused');
+  for (const args of [['--help'], ['-h'], ['task', '--help'], ['task', 'help']]) {
+    const result = spawnSync(process.execPath, [path.join(ROOT, 'tools/harness.mjs'), '--home', home, ...args], { encoding: 'utf8', windowsHide: true });
+    assert.equal(result.status, 0, result.stderr);
+    assert.ok(JSON.parse(result.stdout));
+  }
+  const shown = spawnSync(process.execPath, [path.join(ROOT, 'tools/harness.mjs'), '--home', home, 'task', 'show', task.id], { encoding: 'utf8', windowsHide: true });
+  assert.equal(shown.status, 0, shown.stderr);
+  const record = JSON.parse(shown.stdout);
+  assert.equal(record.status, 'paused');
+  assert.equal(record.checkpoints.at(-1).note, 'Remaining work is recorded here');
+  const context = handleHook(ROOT, home, input(workspace, 'SessionStart')).hookSpecificOutput.additionalContext;
+  assert.match(context, /task show ID/);
+});
+
+test('status distinguishes routing from actual skill observations and omits skill arguments', t => {
+  const { home, workspace } = fixture(t);
+  handleHook(ROOT, home, input(workspace, 'SessionStart'));
+  handleHook(ROOT, home, input(workspace, 'UserPromptSubmit', { prompt: 'Fix behavior' }));
+  assert.deepEqual(status(home, workspace).activation.skillsObserved, []);
+  handleHook(ROOT, home, input(workspace, 'PostToolUse', { tool_name: 'Skill', tool_input: { skill: 'dev-mode', args: 'SECRET_SKILL_ARGUMENTS' } }));
+  handleHook(ROOT, home, input(workspace, 'PostToolUseFailure', { tool_name: 'Skill', tool_input: { skill: 'debug-mode' } }));
+  const receipt = status(home, workspace);
+  assert.equal(receipt.activation.sessionStartSeen, true);
+  assert.equal(receipt.activation.promptRoutingSeen, true);
+  assert.deepEqual(receipt.activation.skillsObserved, ['dev-mode']);
+  assert.doesNotMatch(JSON.stringify(receipt.recentEvents), /SECRET_SKILL_ARGUMENTS/);
 });

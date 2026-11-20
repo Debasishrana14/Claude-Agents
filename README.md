@@ -44,8 +44,10 @@ node tools/harness.mjs doctor
 node tools/harness.mjs status --workspace "PATH TO YOUR PROJECT"
 ```
 
-Doctor checks installed assets and release hashes. Status shows recent hook
-receipts and saved tasks for a workspace. An installation pass does not establish
+Doctor checks installed assets and release hashes. Status summarizes startup,
+prompt routing, successfully observed skill calls, denied direct tool calls,
+recent hook receipts, and saved tasks for a workspace. A routing suggestion is
+distinct from a skill actually being observed. An installation pass does not establish
 that a running session loaded it. In Claude, inspect `/context all`, `/memory`,
 `/skills`, `/agents`, and `/hooks` as supported by your installed version. Project
 or managed configuration can affect the effective settings. The hook records
@@ -58,6 +60,7 @@ with that CLI, or with `node tools/harness.mjs` from this checkout:
 
 ```text
 node tools/harness.mjs task begin --title "Fix section regeneration" --mode dev-mode
+node tools/harness.mjs task show TASK_ID
 node tools/harness.mjs task checkpoint TASK_ID --note "Changed files, decisions, remaining work"
 node tools/harness.mjs task check TASK_ID -- node --test path/to/relevant.test.mjs
 node tools/harness.mjs task complete TASK_ID --summary "Implemented and validated"
@@ -115,7 +118,7 @@ remove only that stale `.lock` file and retry rollback. Do not edit the journal.
   cannot delegate. Worker writable assignments are instructions, not an OS
   access boundary.
 - Hook receipts contain timestamps, event/tool/agent names, routing mode, a
-  hashed session ID, and a workspace hash. Prompts, tool arguments/results,
+  skill identifier when present, a hashed session ID, and a workspace hash. Prompts, skill arguments, tool arguments/results,
   commands, transcripts, and source contents are not retained by this logger.
   Task titles and checkpoint notes are user/agent-authored: keep them non-sensitive.
 - Session logs are bounded by events per session and pruned after 30 inactive
@@ -150,3 +153,10 @@ Runtime interfaces follow the official Claude Code documentation:
 [settings](https://code.claude.com/docs/en/settings),
 [skills](https://code.claude.com/docs/en/skills), and
 [memory imports](https://code.claude.com/docs/en/memory).
+
+The local live pilot results are recorded in [docs/pilot-results.json](docs/pilot-results.json).
+They exercise synthetic section-regeneration fixtures in temporary workspaces;
+they are not a benchmark of the complete EVA application. Raw session streams
+remain local under ignored `.scratch/pilot/` because they can contain prompts,
+tool arguments, source excerpts, and machine-specific paths. Pilot model calls
+are intentional and are separate from the offline test suite.

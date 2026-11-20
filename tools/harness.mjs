@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { ROOT, configHome, loadPolicy, readJSON } from '../lib/core.mjs';
 import { doctor, install, rollback } from '../lib/install.mjs';
-import { beginTask, checkpoint, completeTask, listTasks, runCheck, status } from '../lib/runtime.mjs';
+import { beginTask, checkpoint, completeTask, getTask, listTasks, runCheck, status } from '../lib/runtime.mjs';
 
 const args = process.argv.slice(2);
 function option(name, fallback) {
@@ -40,7 +40,8 @@ function validate() {
 try {
   const home = path.resolve(option('--home', configHome()));
   const workspace = path.resolve(option('--workspace', process.cwd()));
-  const command = args.shift() || 'help';
+  const requested = args.shift() || 'help';
+  const command = ['--help', '-h'].includes(requested) ? 'help' : requested;
   let result;
   if (command === 'validate') result = validate();
   else if (command === 'install') { validate(); result = install(ROOT, home); }
@@ -51,6 +52,8 @@ try {
     const action = args.shift();
     if (action === 'begin') result = beginTask(home, workspace, option('--title'), option('--mode', 'dev-mode'));
     else if (action === 'list') result = listTasks(home, workspace);
+    else if (action === 'show') result = getTask(home, args[0]);
+    else if (['help', '--help', '-h', undefined].includes(action)) result = { actions: ['begin --title TEXT [--mode MODE]', 'list', 'show ID', 'checkpoint ID --note TEXT [--status running|paused|blocked|cancelled]', 'check ID -- executable arguments', 'complete ID --summary TEXT [--skip-reason TEXT]'] };
     else if (action === 'checkpoint') { const status = option('--status', 'running'); const note = option('--note'); result = checkpoint(home, args[0], note, status); }
     else if (action === 'check') {
       const separator = args.indexOf('--');
@@ -61,7 +64,7 @@ try {
     else throw new Error('Unknown task action');
   } else if (command === 'help') result = {
     usage: 'node tools/harness.mjs COMMAND [--home CLAUDE_CONFIG_DIR] [--workspace PROJECT]',
-    commands: ['validate', 'install', 'doctor', 'status', 'rollback', 'task begin --title TEXT [--mode MODE]', 'task list', 'task checkpoint ID --note TEXT [--status running|paused|blocked|cancelled]', 'task check ID -- executable arguments', 'task complete ID --summary TEXT [--skip-reason TEXT]']
+    commands: ['validate', 'install', 'doctor', 'status', 'rollback', 'task begin --title TEXT [--mode MODE]', 'task list', 'task show ID', 'task checkpoint ID --note TEXT [--status running|paused|blocked|cancelled]', 'task check ID -- executable arguments', 'task complete ID --summary TEXT [--skip-reason TEXT]']
   };
   else throw new Error(`Unknown command: ${command}`);
   process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);

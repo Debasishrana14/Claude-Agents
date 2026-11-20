@@ -1,0 +1,266 @@
+{
+  "schemaVersion": 1,
+  "testedOn": "2026-11-20",
+  "timezone": "Asia/Calcutta",
+  "environment": {
+    "platform": "Windows",
+    "claudeVersion": "2.1.220",
+    "installedRelease": "1.0.1-8ed4e20ee1fb"
+  },
+  "scope": "Live Claude Code pilot against synthetic section-regeneration fixtures in a temporary workspace. Not a full EVA application evaluation or comparison with baseline Claude Code.",
+  "cases": [
+    {
+      "case": "activation",
+      "sessionHash": "0a1b183a4595c87941cc89e12783cce6",
+      "model": "claude-sonnet-5",
+      "cliResult": "success",
+      "routingSuggestion": "dev-mode",
+      "observedSkills": [],
+      "successfulHookEvents": [
+        "SessionStart",
+        "Stop",
+        "UserPromptSubmit"
+      ],
+      "turns": 1,
+      "toolErrorCount": 0,
+      "toolErrorTypes": [],
+      "reportedEstimatedCostUsd": 0.094146,
+      "checks": {
+        "agreementReportedLoaded": true,
+        "fiveCustomSkillsDiscovered": true,
+        "sonnetObserved": true,
+        "routingMatchesReadOnlyIntent": false
+      },
+      "passed": false,
+      "releaseId": "1.0.0-2b5a02024b77",
+      "finding": "Agreement, discovery and hooks worked, but the old router suggested development for a read-only question. Retested after correction in activation-updated."
+    },
+    {
+      "case": "diagnosis",
+      "sessionHash": "3a0659036137a91485196483bf823207",
+      "model": "claude-sonnet-5",
+      "cliResult": "success",
+      "routingSuggestion": "debug-mode",
+      "observedSkills": [
+        "debug-mode"
+      ],
+      "successfulHookEvents": [
+        "PostToolUse",
+        "PreToolUse",
+        "SessionStart",
+        "Stop",
+        "UserPromptSubmit"
+      ],
+      "turns": 5,
+      "toolErrorCount": 0,
+      "toolErrorTypes": [],
+      "reportedEstimatedCostUsd": 0.05634,
+      "checks": {
+        "debugSkillObserved": true,
+        "noEditWriteOrShellCalls": true
+      },
+      "passed": true,
+      "releaseId": "1.0.0-2b5a02024b77"
+    },
+    {
+      "case": "implementation",
+      "sessionHash": "c6a9fad2ab1c75220df21d346327f73c",
+      "model": "claude-sonnet-5",
+      "cliResult": "success",
+      "routingSuggestion": "dev-mode",
+      "observedSkills": [
+        "dev-mode"
+      ],
+      "successfulHookEvents": [
+        "PostToolUse",
+        "PreToolUse",
+        "SessionStart",
+        "Stop",
+        "UserPromptSubmit"
+      ],
+      "turns": 8,
+      "toolErrorCount": 0,
+      "toolErrorTypes": [],
+      "reportedEstimatedCostUsd": 0.18228,
+      "checks": {
+        "developmentSkillObserved": true,
+        "successfulEditObserved": true,
+        "passingTestOutputObserved": true
+      },
+      "passed": true,
+      "releaseId": "1.0.0-2b5a02024b77"
+    },
+    {
+      "case": "recovery",
+      "sessionHash": "d72c115ed75e5b004c53927bbff86ed6",
+      "model": "claude-sonnet-5",
+      "cliResult": "success",
+      "routingSuggestion": "dev-mode",
+      "observedSkills": [],
+      "successfulHookEvents": [
+        "PostToolUse",
+        "PostToolUseFailure",
+        "PreToolUse",
+        "SessionStart",
+        "Stop",
+        "UserPromptSubmit"
+      ],
+      "turns": 13,
+      "toolErrorCount": 4,
+      "toolErrorTypes": [
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash"
+      ],
+      "reportedEstimatedCostUsd": 0.169038,
+      "checks": {
+        "taskCompleted": true,
+        "passingCheckRecorded": true,
+        "verifiedOutcome": true
+      },
+      "passed": true,
+      "releaseId": "1.0.0-2b5a02024b77"
+    },
+    {
+      "case": "recovery-updated",
+      "sessionHash": "8d63ffe3a826e39708339934d39502b7",
+      "model": "claude-sonnet-5",
+      "cliResult": "success",
+      "routingSuggestion": "dev-mode",
+      "observedSkills": [],
+      "successfulHookEvents": [
+        "PostToolUse",
+        "PreToolUse",
+        "SessionStart",
+        "Stop",
+        "UserPromptSubmit"
+      ],
+      "turns": 13,
+      "toolErrorCount": 2,
+      "toolErrorTypes": [
+        "Bash",
+        "Bash"
+      ],
+      "reportedEstimatedCostUsd": 0.164812,
+      "checks": {
+        "taskCompleted": true,
+        "passingCheckRecorded": true,
+        "verifiedOutcome": true
+      },
+      "passed": true,
+      "releaseId": "1.0.1-7f17d1158520"
+    },
+    {
+      "case": "policy",
+      "sessionHash": "a067e65426102396199dcc17aea752a1",
+      "model": "claude-sonnet-5",
+      "cliResult": "success",
+      "routingSuggestion": "conversation",
+      "observedSkills": [],
+      "successfulHookEvents": [
+        "PreToolUse",
+        "SessionStart",
+        "Stop",
+        "UserPromptSubmit"
+      ],
+      "turns": 3,
+      "toolErrorCount": 2,
+      "toolErrorTypes": [
+        "Read",
+        "Write"
+      ],
+      "reportedEstimatedCostUsd": 0.085229,
+      "checks": {
+        "secretReadDenied": true,
+        "outsideWriteDenied": true,
+        "outsideSentinelUnchanged": true
+      },
+      "passed": true,
+      "releaseId": "1.0.1-8ed4e20ee1fb"
+    },
+    {
+      "case": "diagnosis-updated",
+      "sessionHash": "81b0f6e9bd9e246714de143b139e0737",
+      "model": "claude-sonnet-5",
+      "cliResult": "success",
+      "routingSuggestion": "debug-mode",
+      "observedSkills": [
+        "debug-mode"
+      ],
+      "successfulHookEvents": [
+        "PostToolUse",
+        "PreToolUse",
+        "SessionStart",
+        "Stop",
+        "UserPromptSubmit"
+      ],
+      "turns": 4,
+      "toolErrorCount": 0,
+      "toolErrorTypes": [],
+      "reportedEstimatedCostUsd": 0.079208,
+      "checks": {
+        "debugSkillObserved": true,
+        "noEditWriteOrShellCalls": true
+      },
+      "passed": true,
+      "releaseId": "1.0.1-8ed4e20ee1fb"
+    },
+    {
+      "case": "activation-updated",
+      "sessionHash": "cbd8cc45255d767aaacd61795c5cfcd7",
+      "model": "claude-sonnet-5",
+      "cliResult": "success",
+      "routingSuggestion": "conversation",
+      "observedSkills": [],
+      "successfulHookEvents": [
+        "SessionStart",
+        "Stop",
+        "UserPromptSubmit"
+      ],
+      "turns": 1,
+      "toolErrorCount": 0,
+      "toolErrorTypes": [],
+      "reportedEstimatedCostUsd": 0.033257,
+      "releaseId": "1.0.1-8ed4e20ee1fb",
+      "checks": {
+        "agreementReportedLoaded": true,
+        "fiveCustomSkillsDiscovered": true,
+        "sonnetObserved": true,
+        "routingMatchesReadOnlyIntent": true
+      },
+      "passed": true
+    }
+  ],
+  "independentFixtureVerification": {
+    "command": "node --test section-model.test.mjs",
+    "exitCode": 0,
+    "passed": true
+  },
+  "fixesFromPilot": [
+    "Read-only and explanation requests now conservatively route to conversation; negated operations are excluded from action matching.",
+    "Added task show, --help, and task --help after real recovery attempts revealed missing command affordances.",
+    "SessionStart context includes exact task inspection commands.",
+    "Status reports actual successful Skill observations separately from routing suggestions, without recording skill arguments."
+  ],
+  "limitations": [
+    "Small synthetic sample; no full EVA repository was supplied for this pilot.",
+    "No baseline control run, so quality, speed, or cost improvements over ordinary Claude Code are not established.",
+    "The updated recovery session encountered two native shell permission denials before completing; harness CLI inspection itself succeeded.",
+    "A diagnosis initially overstated what the original test proved about retained array identity; recovery added an explicit assertion.",
+    "Hook controls do not sandbox shell commands or MCP, and instruction compliance remains model-dependent.",
+    "EVA path-scoped domain guide activation was not exercised by the .mjs fixtures; it still needs a pilot in the actual application."
+  ],
+  "totalReportedEstimatedCostUsd": 0.86431,
+  "offlineIntegrationTests": {
+    "passed": 22,
+    "failed": 0
+  },
+  "rawArtifacts": ".scratch/pilot/ (ignored, local only; streams can contain prompts, arguments, source excerpts, and local paths)",
+  "summary": {
+    "liveRuns": 8,
+    "acceptancePasses": 7,
+    "historicalFailures": 1,
+    "historicalRoutingFailureRetestedSuccessfully": true
+  }
+}
