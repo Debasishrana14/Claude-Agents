@@ -1,89 +1,65 @@
 # Claude Code Working Agreement
 
-These instructions apply when Claude Code is launched in any project that
-imports this file.
+## Manual control
 
-## Default behavior
+- Work normally unless the user explicitly selects a mode.
+- Never start an agent, research task, experiment, review, or test run
+  automatically.
+- Before every agent launch, explain its task, model, access, and expected result;
+  then wait for user approval. General approval to do the task is not approval to
+  delegate it.
+- One response may approve a specifically listed batch. It does not approve new
+  agents, replacement agents, broader scope, or a higher model.
+- Agents cannot spawn agents. The main session owns all delegation.
+- Do not commit unless explicitly requested.
 
-- Complete small, clear, and sequential work directly in the main session.
-- Do not delegate merely because a request is large or touches several files.
-- Delegate only when context isolation, independent parallel work, specialist
-  judgment, or a clean stage handoff is worth the extra tokens and latency.
-- Use the minimum capable model. File ownership or application layer never
-  determines model tier by itself.
-- Preserve user intent, unrelated work, and the current repository state.
-- Do not commit unless the user explicitly asks.
+## Manual modes
 
-## Delegation consent
+Modes activate only when the user invokes them:
 
-Every proposed delegation requires user consent before the agent or teammate is
-started. State the bounded task, role, model, reason, expected handoff, and
-whether it can edit files. Wait for the answer.
+- `/debug-mode` — investigate and establish the root cause; do not implement
+  unless separately requested.
+- `/dev-mode` — normal development for small or large work.
+- `/research-dev-mode` — explore possibilities, theory, prototypes, and
+  tradeoffs; production implementation is not the default outcome.
+- `/target-mode` — deliver a narrowly defined result quickly with explicit
+  tradeoffs and minimal exploration.
 
-One answer may approve a clearly enumerated batch of independent delegations.
-It does not approve additional agents, replacement agents, recursive work, a
-higher model tier, or a broader scope. Ask again before expanding the approved
-roster. "Use agents" alone is not blanket approval unless the user explicitly
-says it is.
+If no mode is selected, use Development behavior without loading its skill.
+Do not switch modes silently. Suggest a different mode only when it would
+materially change the outcome, and let the user decide.
 
-## Workflow routing
+## Models
 
-- Ordinary bug fixes, edits, questions, and reviews: work directly and apply
-  only the relevant rules under `.claude/rules/`.
-- A focused investigation whose raw exploration is disposable: propose one
-  read-only subagent.
-- Independent bounded tasks: propose a parallel batch of subagents.
-- A long sequential task whose stages can exchange compact artifacts: use the
-  `coordinate-work` skill and its relay mode.
-- Work requiring workers to negotiate inputs, request changes from one another,
-  or communicate directly: use the `coordinate-work` skill and consider an
-  agent team. Do not represent ordinary subagents as directly communicating.
+- Main/default: Sonnet.
+- Haiku: optional approved agent for bounded search or mechanical extraction.
+- Sonnet: normal development, debugging, and substantive reasoning.
+- Opus: never automatic. Use only when the user explicitly selects it for a
+  difficult architectural or algorithmic question.
 
-Claude Code subagents cannot spawn subagents. Any deeper decomposition must be
-performed by the main session after obtaining any required new consent. Agent
-teams are experimental, cost more total tokens, and must be explicitly approved.
+Task size and application layer do not determine model tier.
 
-## Hard boundaries
+## Validation
 
-- Read-only roles must not edit repository files.
-- A delegated writer owns only the paths named in its assignment.
-- Parallel writers must have disjoint path ownership or isolated worktrees.
-- No agent may silently broaden its task, delegate further, raise its model
-  tier, delete material files, cross an ownership boundary, or commit.
-- Failed verification returns to the owner of the failed stage; it does not
-  authorize an unbounded retry loop. After one evidence-driven correction,
-  escalate repeated failure to the main session.
+After code changes, run only the relevant TypeScript type check by default.
+Do not automatically write tests, run tests, launch a verifier/reviewer, run a
+full build, lint the repository, or perform broad regression testing.
 
-## Model routing
+Testing is opt-in. When the user requests tests, clarify or infer whether they
+want feature tests, impact/regression tests, test execution, or some combination.
+Test-writing agents still require approval before launch.
 
-Choose by the actual subtask, not by DataLayer, Geometry, Visualization, or
-SectioningBoard ownership:
+Always inspect the final diff and report what was and was not validated.
 
-- Haiku: file discovery, inventories, known-pattern searches, mechanical checks,
-  and concise extraction with clear acceptance criteria.
-- Sonnet: ordinary implementation, debugging, verification, review, experiments,
-  and planning with bounded ambiguity.
-- Opus: only high-ambiguity architecture, difficult algorithmic reasoning,
-  conflicting cross-system constraints, or escalation after a cheaper model
-  produced insufficient evidence.
+## EVA configurator context
 
-Use `inherit` only when the parent model is already the minimum capable model.
-Do not escalate because a task is long; split or checkpoint it instead. Record
-the reason whenever proposing Opus.
+Path-scoped rules under `.claude/rules/eva-*.md` load the relevant domain guide.
+The maintained guides are under `.claude/departments/`. Use exact assigned paths
+for agent write boundaries because several legacy files mix Data, Geometry,
+Visualization, and Sectioning responsibilities.
 
-## Domain ownership
+## Long work
 
-Ownership rules are documented in `.claude/rules/departments.md`. Load only the
-department document relevant to files being changed. When the current project
-does not provide a concrete path-to-owner map, treat department labels as review
-guidance rather than enforceable write boundaries and use explicit assigned
-paths instead.
-
-## Verification and completion
-
-Run the strongest relevant practical check without automatically running every
-suite. Inspect the final diff. Report what passed, what failed, what was not
-verified, and remaining risk. Never use agent-count percentage as task progress.
-
-For multi-stage work, follow `.claude/skills/coordinate-work/SKILL.md` only when
-that workflow is selected.
+For a genuinely long staged task, the user may explicitly invoke
+`/coordinate-work`. It passes a short baton through the main session. Do not use
+the relay merely because a task has many files.
