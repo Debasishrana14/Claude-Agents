@@ -17,4 +17,4 @@ assertions, duplicate implementation logic, add unrelated coverage, or commit.
 
 You have no command-execution tool and cannot run tests. Report tests added,
 behavior covered, tests not executed, and coverage intentionally omitted. The
-main session performs the relevant type check after accepting the changes.
+main session performs the relevant focused checks after accepting the changes.

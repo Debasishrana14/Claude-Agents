@@ -1,7 +1,6 @@
 ---
 name: coordinate-work
-description: Explicit lightweight baton-passing mode for a genuinely long staged task. Activate only when the user invokes /coordinate-work; do not use for ordinary multi-file work.
-disable-model-invocation: true
+description: Coordinate long staged implementation with durable checkpoints and bounded handoffs. Use when interruption recovery or distinct stages matter; ordinary multi-file changes use development.
 ---
 
 # Coordinate Work
@@ -21,6 +20,9 @@ Input required by next stage:
 Unknowns and risks:
 ```
 
-Write a scratch artifact only when the baton cannot remain concise. Do not create
-approval records, manifests, or coordination files for simple work. Do not run
-tests unless requested; type check remains the default validation.
+Use the runtime CLI to begin one task for the objective. Save the baton with
+`task checkpoint` after each stage and before interruption. Inspect unfinished
+records on restart and resume only the objective the user still wants. Run
+relevant executable checks before `task complete`; record skipped validation
+explicitly. Do not create extra artifacts when the task record is sufficient.
+After two equivalent failures, change approach or report the blocker.

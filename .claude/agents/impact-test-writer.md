@@ -17,4 +17,4 @@ production code, rewrite unrelated tests, weaken assertions, or commit.
 
 You have no command-execution tool and cannot run tests. Report impacted
 behaviors, tests added, tests not executed, and residual risk. The main session
-performs the relevant type check after accepting the changes.
+performs the relevant focused checks after accepting the changes.

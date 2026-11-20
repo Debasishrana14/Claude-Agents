@@ -1,7 +1,6 @@
 ---
 name: debug-mode
-description: Explicit debugging mode for evidence-driven root-cause analysis. Activate only when the user invokes /debug-mode; diagnosis is the outcome unless implementation is separately requested.
-disable-model-invocation: true
+description: Investigate failures and establish root causes when diagnosis is requested without implementation. For diagnose-and-fix requests, use development with an investigation phase.
 ---
 
 # Debug Mode

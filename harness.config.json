@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "defaultModel": "sonnet",
+  "maxCheckSeconds": 300,
+  "maxEventsPerSession": 5000,
+  "retentionDays": 30,
+  "permissions": {
+    "deny": ["Read(**/.env)", "Read(**/.env.*)", "Read(**/.credentials.json)"],
+    "ask": ["Agent", "Task", "Bash(git push *)", "Bash(git reset --hard *)", "Bash(git clean *)"]
+  }
+}

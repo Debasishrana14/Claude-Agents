@@ -2,3 +2,5 @@
 .claude/backups/
 .claude/skills/synced/
 .scratch/coordination/
+.claude/eva-harness/
+node_modules/

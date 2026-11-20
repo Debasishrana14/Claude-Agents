@@ -1,7 +1,6 @@
 ---
 name: target-mode
-description: Explicit time-prioritized mode for delivering one narrowly defined result quickly with controlled scope and transparent tradeoffs. Activate only when the user invokes /target-mode.
-disable-model-invocation: true
+description: Deliver a narrowly scoped implementation under an explicit deadline or time budget, with stated tradeoffs and focused validation.
 ---
 
 # Target Mode
@@ -14,6 +13,6 @@ Work directly unless one approved worker can finish a genuinely independent
 part faster. Never trade away data safety, repository integrity, authorization,
 or truthful reporting for speed.
 
-Do not write or run tests unless requested. Run only the relevant TypeScript
-type check by default. At completion, state the result, shortcuts taken,
-unvalidated behavior, and follow-up work deliberately deferred.
+Run relevant focused checks within the time budget. Record checks for
+multi-step work with the runtime task CLI. State the result, shortcuts taken,
+unvalidated behavior, and deliberately deferred follow-up.
