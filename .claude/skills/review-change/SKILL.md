@@ -21,6 +21,21 @@ changes, check units, coordinate spaces, tolerances, degeneracies, scale, and
 credible complexity/allocation changes. A speed claim needs a comparable measured
 workload, not an impression from reading code.
 
+Review maintainability as well as passing tests: do names match behavior and
+local terminology, do responsibilities and dependencies remain understandable,
+and could existing code satisfy the change with less duplication? Inspect
+shared-helper consumers before proposing reuse or repair. Flag unnecessary
+layers, speculative patterns, hidden side effects, and unexplained diff churn
+with concrete maintenance costs. SOLID/OOP and design patterns are tools for
+actual design problems, not mandatory structures for every patch.
+
+Compare the task diff with its pre-existing dirty baseline and approved scope.
+Identify unrelated edits or contract/dependency changes needing a design update.
+Check security only where there is a credible changed surface: authorization,
+untrusted input, secrets, command/filesystem access, or sensitive data. Supported
+concerns need a trigger, impact, evidence, mitigation, and known responsible
+owner; mark ownership unknown when absent. Draft handoffs without external writes.
+
 Compare checks to the acceptance criteria. Where execution is authorized and
 available, run focused reproductions or tests; otherwise mark findings static.
 Do not change production code for a review-only request. In development, fix

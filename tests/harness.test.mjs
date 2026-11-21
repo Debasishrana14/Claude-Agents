@@ -6,7 +6,7 @@ import path from 'node:path';
 import { spawn, spawnSync } from 'node:child_process';
 import { ROOT, loadPolicy, readJSON, route, writeJSON } from '../lib/core.mjs';
 import { doctor, install, rollback } from '../lib/install.mjs';
-import { beginTask, checkpoint, completeTask, handleHook, prune, runCheck, status } from '../lib/runtime.mjs';
+import { beginTask, checkpoint, completeTask, fingerprint, handleHook, prune, runCheck, status } from '../lib/runtime.mjs';
 
 function fixture(t) {
   const base = fs.mkdtempSync(path.join(os.tmpdir(), 'eva harness test '));
@@ -68,7 +68,7 @@ test('install preserves settings and instructions, is idempotent, and rolls back
   assert.equal(installed.status, 'installed');
   const settings = readJSON(path.join(home, 'settings.json'));
   assert.equal(settings.customValue, 42);
-  assert.equal(settings.model, 'sonnet');
+  assert.equal(settings.model, 'opus');
   assert.deepEqual(settings.permissions.allow, ['Read', 'Agent', 'Task']);
   assert.ok(settings.permissions.deny.includes('Read(secret)'));
   assert.equal(settings.hooks.SessionStart.length, 2);
@@ -253,6 +253,28 @@ test('checks that mutate source cannot be used as passing evidence', t => {
   assert.equal(result.check.changedWorkspace, true);
   assert.equal(result.check.passed, false);
   assert.throws(() => completeTask(home, task.id, 'done'), /failed checks/);
+});
+
+test('workspace fingerprints do not execute a repository fsmonitor hook', t => {
+  const { workspace } = fixture(t);
+  const git = (...args) => {
+    const result = spawnSync('git', args, { cwd: workspace, encoding: 'utf8', windowsHide: true });
+    assert.equal(result.status, 0, result.stderr);
+  };
+  git('init', '--quiet');
+  fs.writeFileSync(path.join(workspace, 'source.txt'), 'initial');
+  git('add', 'source.txt');
+  fs.writeFileSync(path.join(workspace, '.git/monitor'), '#!/bin/sh\nprintf invoked > .git/monitor-ran\n', { mode: 0o755 });
+  git('config', 'core.fsmonitor', '.git/monitor');
+  // Prove the configured hook really can execute on this Git installation.
+  git('ls-files');
+  const marker = path.join(workspace, '.git/monitor-ran');
+  assert.equal(fs.existsSync(marker), true);
+  fs.unlinkSync(marker);
+  const before = fingerprint(workspace);
+  fs.writeFileSync(path.join(workspace, 'source.txt'), 'changed');
+  assert.notEqual(fingerprint(workspace), before);
+  assert.equal(fs.existsSync(marker), false);
 });
 
 test('event caps and retention bound local session logs', t => {

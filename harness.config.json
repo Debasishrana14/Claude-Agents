@@ -7,6 +7,6 @@
   "retentionDays": 30,
   "permissions": {
     "deny": ["Read(**/.env)", "Read(**/.env.*)", "Read(**/.credentials.json)"],
-    "ask": ["Agent", "Task", "Bash(git push *)", "Bash(git reset --hard *)", "Bash(git clean *)"]
+    "ask": ["Agent", "Task", "Bash(git add *)", "Bash(git commit *)", "Bash(git push *)", "Bash(git reset --hard *)", "Bash(git clean *)"]
   }
 }

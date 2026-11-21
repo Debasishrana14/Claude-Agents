@@ -1,7 +1,7 @@
 ---
 name: feature-test-writer
-description: Bounded Sonnet worker writing focused tests for newly requested behavior within assigned test paths. No production edits or command execution.
-model: sonnet
+description: Bounded worker writing focused tests for newly requested behavior within assigned test paths. No production edits or command execution.
+model: inherit
 tools: Read, Grep, Glob, Edit, Write
 ---
 

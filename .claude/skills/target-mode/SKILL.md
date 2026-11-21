@@ -14,5 +14,5 @@ finish a genuinely independent part faster. Never trade away data safety, reposi
 or truthful reporting for speed.
 
 Run relevant focused checks within the time budget. Record checks for
-multi-step work with the runtime task CLI. State the result, shortcuts taken,
+substantial work needing recovery with the runtime task CLI. State the result, shortcuts taken,
 unvalidated behavior, and deliberately deferred follow-up.

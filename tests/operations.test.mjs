@@ -52,7 +52,9 @@ function fakeDriver(policy) {
 test('job snapshots omit secret names, dependencies and symlinks and survive CLI restart', t => {
   const { root, workspace, home, policy } = fixture(t);
   fs.writeFileSync(path.join(workspace, 'input.txt'), 'workload');
-  fs.writeFileSync(path.join(workspace, '.env'), 'SECRET_PLACEHOLDER');
+  for (const name of ['.env', '.npmrc', 'client.PEM', 'id_ed25519']) {
+    fs.writeFileSync(path.join(workspace, name), 'SECRET_PLACEHOLDER');
+  }
   fs.mkdirSync(path.join(workspace, 'node_modules')); fs.writeFileSync(path.join(workspace, 'node_modules/dependency.txt'), 'not copied');
   const outside = path.join(root, 'outside'); fs.mkdirSync(outside);
   fs.symlinkSync(outside, path.join(workspace, 'link'), process.platform === 'win32' ? 'junction' : 'dir');

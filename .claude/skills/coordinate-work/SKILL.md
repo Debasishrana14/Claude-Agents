@@ -10,12 +10,15 @@ The main session coordinates. Subagents do not talk to or spawn one another.
 Before each worker, define its bounded task, model, access, expected result, and
 reason delegation is useful. Automatic mode permits bounded reader/writer
 assignments without per-agent approval. Respect explicitly selected restrictive
-profiles. Pass only a concise baton to the next stage:
+profiles and the shared inherited-model policy. Prefer direct work when worker
+startup, repeated reads, and integration outweigh useful independent work.
+Pass only a concise baton to the next stage:
 
 ```text
 Stage and result:
 Changed files:
 Contracts/decisions:
+Approved scope and user overrides:
 Evidence/type check:
 Input required by next stage:
 Unknowns and risks:

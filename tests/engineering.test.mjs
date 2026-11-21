@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { ROOT, digest, loadPolicy, readJSON, route, writeJSON } from '../lib/core.mjs';
+import { ROOT, assets, digest, loadPolicy, readJSON, route, writeJSON } from '../lib/core.mjs';
 import { projectContext, projectContract } from '../lib/project.mjs';
 import { install, rollback } from '../lib/install.mjs';
 import { beginTask, checkpoint, completeTask, defineTask, getTask, handleHook, runCheck } from '../lib/runtime.mjs';
@@ -160,6 +160,57 @@ test('explicit model selection is preserved by reinstall and reversed by rollbac
   assert.throws(() => install(ROOT, home, { model: 'unrecognized' }), /Model must/);
 });
 
+test('upgrades preserve a user-selected provider model and rollback preserves that choice', t => {
+  const { home, base } = fixture(t);
+  const source = path.join(base, 'source');
+  fs.cpSync(ROOT, source, { recursive: true, filter: file => {
+    const relative = path.relative(ROOT, file).replaceAll('\\', '/');
+    return !relative.startsWith('.git') && !relative.startsWith('.claude/skills/synced');
+  } });
+  install(source, home);
+  const file = path.join(home, 'settings.json');
+  const settings = readJSON(file);
+  settings.model = 'provider-custom-model';
+  writeJSON(file, settings);
+  fs.appendFileSync(path.join(source, 'CLAUDE.md'), '\nUpdated guidance.\n');
+  const upgraded = install(source, home);
+  assert.equal(upgraded.model, settings.model);
+  assert.equal(readJSON(file).model, settings.model);
+  assert.equal(install(source, home).status, 'already-installed');
+  rollback(home);
+  assert.equal(readJSON(file).model, settings.model);
+});
+
+test('first installation preserves a full model ID unless an alias is explicitly requested', t => {
+  const { home } = fixture(t);
+  const file = path.join(home, 'settings.json');
+  writeJSON(file, { model: 'provider-custom-model' });
+  assert.equal(install(ROOT, home).model, 'provider-custom-model');
+  assert.equal(install(ROOT, home, { model: 'haiku' }).model, 'haiku');
+  rollback(home);
+  assert.equal(readJSON(file).model, 'provider-custom-model');
+});
+
+test('definition validation rejects body-spoofed names and fixed worker models', t => {
+  const { base } = fixture(t);
+  const source = path.join(base, 'source');
+  for (const file of assets(ROOT)) {
+    const target = path.join(source, file);
+    fs.mkdirSync(path.dirname(target), { recursive: true });
+    fs.copyFileSync(path.join(ROOT, file), target);
+  }
+  const validate = () => spawnSync(process.execPath, [path.join(source, 'tools/harness.mjs'), 'validate'], { encoding: 'utf8', windowsHide: true });
+  assert.equal(validate().status, 0);
+  const file = path.join(source, '.claude/agents/research.md');
+  const original = fs.readFileSync(file, 'utf8');
+  fs.writeFileSync(file, original.replace('name: research', 'name: wrong-role') + '\nname: research\n');
+  assert.notEqual(validate().status, 0);
+  fs.writeFileSync(file, original.replace('model: inherit', 'model: haiku'));
+  assert.notEqual(validate().status, 0);
+  fs.writeFileSync(file, original);
+  assert.equal(validate().status, 0);
+});
+
 test('settings drift is preserved conservatively when changing delegation', t => {
   const { home } = fixture(t);
   install(ROOT, home, { delegation: 'manual' });
@@ -191,6 +242,8 @@ test('automatic delegation removes launch approvals without changing other permi
   assert.equal(settings.permissions.ask.some(x => /^(Agent|Task)(\(|$)/.test(x)), false);
   assert.ok(settings.permissions.ask.includes('Bash(custom *)'));
   assert.ok(settings.permissions.ask.includes('Bash(git push *)'));
+  assert.ok(settings.permissions.ask.includes('Bash(git add *)'));
+  assert.ok(settings.permissions.ask.includes('Bash(git commit *)'));
   assert.ok(settings.permissions.deny.includes('Read(private.txt)'));
   assert.ok(settings.permissions.allow.includes('Agent'));
   assert.ok(settings.permissions.allow.includes('Task'));

@@ -1,7 +1,7 @@
 ---
 name: debugger
-description: Bounded read-only Sonnet root-cause investigator using evidence-driven debugging techniques. Use under the active delegation profile; implementation requires separate authorization.
-model: sonnet
+description: Bounded read-only root-cause investigator using evidence-driven debugging techniques. Use under the active delegation profile; implementation requires separate authorization.
+model: inherit
 tools: Read, Grep, Glob
 ---
 

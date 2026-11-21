@@ -25,8 +25,12 @@ function validate() {
     for (const file of files) {
       const text = fs.readFileSync(file, 'utf8').replaceAll('\r\n', '\n');
       if (!text.startsWith('---\n') || !text.slice(4).includes('\n---\n')) throw new Error(`Missing frontmatter: ${file}`);
-      if (group !== 'rules' && !/^name: [a-z0-9-]+$/m.test(text)) throw new Error(`Invalid name: ${file}`);
-      if (group === 'skills' && /disable-model-invocation: true/.test(text)) throw new Error(`Workflow is not discoverable: ${file}`);
+      const frontmatter = text.slice(4, text.indexOf('\n---\n', 4));
+      const expectedName = group === 'skills' ? path.basename(path.dirname(file)) : path.basename(file, '.md');
+      if (group !== 'rules' && frontmatter.match(/^name: ([a-z0-9-]+)$/m)?.[1] !== expectedName) throw new Error(`Frontmatter name must match ${expectedName}: ${file}`);
+      if (group !== 'rules' && !/^description: \S.+$/m.test(frontmatter)) throw new Error(`Missing description: ${file}`);
+      if (group === 'agents' && !/^model: inherit$/m.test(frontmatter)) throw new Error(`Harness workers must inherit the selected model: ${file}`);
+      if (group === 'skills' && /^disable-model-invocation: true$/m.test(frontmatter)) throw new Error(`Workflow is not discoverable: ${file}`);
       if (/[A-Z]:[\\/]/.test(text)) throw new Error(`Machine-specific path: ${file}`);
     }
     counts[group] = files.length;

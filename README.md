@@ -17,17 +17,23 @@ The November 21 live/application validation is in
 
 ## Install and use
 
+**Sharing with teammates? Start with the [step-by-step team setup guide](docs/team-setup.md).**
+It covers downloading the harness, installing it, linking each person's application
+checkouts, verifying activation, daily prompts, updates, and rollback. Each teammate
+installs their own local copy using their own Claude account; no shared server is required.
+
 From this checkout:
 
 ```text
 node tools/harness.mjs validate
-node --test tests/harness.test.mjs tests/git-context.test.mjs tests/engineering.test.mjs
+npm test
 node tools/harness.mjs install
 node tools/harness.mjs doctor
 ```
 
 The default destination is `~/.claude`, or `CLAUDE_CONFIG_DIR` when set. Override
-it with `--home PATH`. The installer changes your default model to Sonnet,
+it with `--home PATH`. The installer preserves your configured model (uses
+Sonnet when none is configured),
 merges its permissions and hooks, and adds a marked CLAUDE.md import with escaped
 spaces. Existing permissions, unrelated hooks, instructions, and extra skills
 are preserved. A colliding unmanaged agent, rule, or skill aborts installation.
@@ -140,11 +146,39 @@ Omitting `--delegation` on later installs preserves the selected profile. Rollba
 restores the previous profile and settings. The installer does not enable bypass
 permission mode, purchase account access, or elevate OS privileges.
 
-Sonnet remains the default model. Select another supported alias explicitly with
-`install --model opus` or `install --model haiku`; later installs preserve that
-choice and rollback restores it. This changes the main-session default, not the
-fixed role-specific worker models, and does not establish account availability.
-An explicit session `/model` choice and effective managed policy still apply.
+Installation preserves the existing configured model, including full provider
+model IDs; a fresh configuration defaults to Sonnet. Use `install --model opus`,
+`--model sonnet`, or `--model haiku` to explicitly change that default. Rollback
+restores the previous settings. Harness workers use `model: inherit`, following
+the main session by default. With requested/configured token optimization, the
+main agent may choose a capable lower model or keep work direct; "quickly" alone
+does not request a downgrade. Session instructions can override workflow defaults.
+The equal-or-lower family ceiling is advisory: launch overrides and provider or
+managed substitution affect actual models. No runtime ceiling or account access
+is established by these definitions. See [Claude's model selection rules](https://code.claude.com/docs/en/sub-agents#choose-a-model).
+
+## How much process does a task need?
+
+| Work | Default workflow |
+| --- | --- |
+| Question, typo, clear local edit | Answer or edit directly; inspect the result. |
+| Small bug/enhancement | Brief understanding, inspect local code and consumers, minimal patch, focused check and diff review. |
+| Substantial or uncertain design | Explain requirements, research relevant existing code, propose scope/reuse/names/checks and useful pseudocode; obtain human approval before implementation. |
+| Security, migration, architecture, expensive computation | Add explicit risk analysis, bounded execution, recovery, and appropriate review/verification. |
+
+The session user can skip or strengthen workflow steps and pre-authorize bounded
+work. This does not override native permissions or managed policy. Small work
+needs no formal plan record or worker. Use durable task records when recovery is
+useful. Prefer existing code and familiar project patterns; new abstractions
+need a concrete reason. Review readability, naming, compatibility, and reviewer
+effort as well as test results. Meaningful behavior changes receive compact
+manual QA drafts, marked Not run unless execution evidence exists. Full QA
+documents and commit drafts remain on demand. No ticket is sent automatically.
+
+These are agent workflow instructions. Design approval, scope ownership, model
+allocation, and engineering judgment are not authenticated runtime guarantees.
+The [research proposal](docs/engineering-harness-research.md) distinguishes the
+implemented guidance from remaining evaluation and enforcement work.
 
 ## Manual QA and commit drafting
 
@@ -172,8 +206,13 @@ Commit drafting follows your explicit strategy, then repository contribution or
 commitlint/release conventions, then recent subjects. If none establishes a
 convention, it defaults to Conventional Commit style with atomic grouping. A
 mixed index gets suggested groups rather than automatic staging changes. Squash
-drafts describe the combined final behavior. A message request does not commit,
-amend, rebase, or push, and ticket IDs or passing-test claims require evidence.
+drafts describe the combined final behavior. Staging, committing, and pushing
+each require an explicit user request for that action; implementing or finishing
+a task grants none of them. Commit authorization does not include push permission.
+A message request does not stage, unstage, commit, amend, rebase, or push, and
+ticket IDs or passing-test claims require evidence. Installed native permission
+rules ask for `git add`, `git commit`, and `git push`; these supplement the workflow
+rule and do not intercept every possible shell, alias, Git API, or MCP write.
 
 The read-only context collector is also available directly:
 
@@ -188,7 +227,7 @@ filter, not a guarantee that arbitrary source code contains no secrets. Large
 patches, conflicts, and concurrent staging changes are marked incomplete rather
 than presented as a complete review. No patch data is saved by the collector.
 The seven collector tests use temporary Git repositories; they do not stage or
-commit changes in this project. The new skill instructions are structurally
+commit changes in this project. Skill instructions are structurally
 validated; the historical live pilot below does not evaluate their prose quality.
 
 ## Legacy naming recommendations
@@ -296,6 +335,13 @@ and effective settings. Use managed policy and isolated execution for team-level
 enforcement; avoid bypass-permission modes for controlled environments.
 
 ## Validation and rollout
+
+The code stays split by responsibility: `core` supplies shared filesystem/policy
+helpers; `install` owns release transactions and rollback; `runtime` owns hooks,
+tasks, and check receipts; `project` discovers contracts and checkout aliases;
+`git-context` collects staged evidence; `jobs` manages opt-in Docker execution.
+The two tools are CLI/protocol entry points. Workflow decisions belong in scoped
+skills and domain guides, rather than another orchestration framework.
 
 CI validates definitions and runs behavioral tests on Windows and Linux. Tests
 cover installation preservation, rollback and drift, legacy junction migration,

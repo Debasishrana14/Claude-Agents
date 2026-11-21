@@ -1,7 +1,7 @@
 ---
 name: research
-description: Bounded read-only Haiku worker for bounded file discovery, call-site search, inventory, or mechanical evidence extraction. Use only under the active delegation profile; not for broad theory or implementation.
-model: haiku
+description: Bounded read-only worker for bounded file discovery, call-site search, inventory, or mechanical evidence extraction. Use only under the active delegation profile; not for broad theory or implementation.
+model: inherit
 tools: Read, Grep, Glob
 ---
 

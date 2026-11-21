@@ -66,9 +66,11 @@ test('renames, deletions, binary files and literal pathspec names are represente
 
 test('sensitive filenames are withheld and oversized evidence is explicitly incomplete', t => {
   const { root, git, write } = repository(t);
-  write('.env', 'ACTUAL_STAGED_SECRET=placeholder\n'); write('large.txt', 'x'.repeat(10000)); git('add', '.');
+  const secrets = ['.env', 'nested/.npmrc', 'nested/client.PEM', 'nested/id_ed25519'];
+  for (const name of secrets) write(name, 'ACTUAL_STAGED_SECRET=placeholder\n');
+  write('large.txt', 'x'.repeat(10000)); git('add', '.');
   const result = commitContext(root, 100);
-  assert.deepEqual(result.withheldPaths, ['.env']);
+  assert.deepEqual(result.withheldPaths.sort(), secrets.sort());
   assert.doesNotMatch(JSON.stringify(result), /ACTUAL_STAGED_SECRET/);
   assert.equal(result.truncated, true);
   assert.equal(result.complete, false);
