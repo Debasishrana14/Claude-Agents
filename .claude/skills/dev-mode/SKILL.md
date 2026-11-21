@@ -10,8 +10,9 @@ smallest correct change. Small and sequential work stays in the main session.
 For long work, split into clear stages but do not create agents merely because
 the task is large.
 
-Use bounded read-only workers only under the active delegation profile. Writer
-workers require approval of task, model, writable paths, and expected result.
+Automatic mode permits bounded reader and writer workers within the authorized
+task, with exact scope and disjoint writable paths. Ask for per-worker approval
+only when the user explicitly selects a restrictive delegation profile.
 Do not delegate merely because the task is large.
 
 For multi-step work, begin a runtime task and checkpoint changed files,

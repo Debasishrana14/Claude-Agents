@@ -1,6 +1,7 @@
 {
   "schemaVersion": 1,
   "defaultModel": "sonnet",
+  "defaultDelegation": "automatic",
   "maxCheckSeconds": 300,
   "maxEventsPerSession": 5000,
   "retentionDays": 30,

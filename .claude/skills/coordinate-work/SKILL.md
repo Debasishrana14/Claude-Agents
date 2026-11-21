@@ -8,9 +8,9 @@ description: Coordinate long staged implementation with durable checkpoints and 
 The main session coordinates. Subagents do not talk to or spawn one another.
 
 Before each worker, define its bounded task, model, access, expected result, and
-reason delegation is useful. Follow the active delegation profile: read-only
-workers may be permitted, while writers require explicit approval. Pass only a concise
-baton to the next approved stage:
+reason delegation is useful. Automatic mode permits bounded reader/writer
+assignments without per-agent approval. Respect explicitly selected restrictive
+profiles. Pass only a concise baton to the next stage:
 
 ```text
 Stage and result:

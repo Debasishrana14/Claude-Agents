@@ -7,26 +7,89 @@
   "allowedMcpServers": [],
   "permissions": {
     "disableBypassPermissionsMode": "disable",
-    "deny": ["Read(**/.env)", "Read(**/.env.*)", "Read(**/.credentials.json)"],
-    "ask": ["Agent", "Task", "Bash(git push *)", "Bash(git reset --hard *)", "Bash(git clean *)"]
+    "deny": [
+      "Read(**/.env)",
+      "Read(**/.env.*)",
+      "Read(**/.credentials.json)"
+    ],
+    "allow": [
+      "Agent",
+      "Task"
+    ],
+    "ask": [
+      "Bash(git push *)",
+      "Bash(git reset --hard *)",
+      "Bash(git clean *)"
+    ]
   },
   "hooks": {
-    "SessionStart": [{"hooks": [{"type": "command", "command": "/usr/bin/node /opt/eva-harness/tools/hook.mjs EVA_MANAGED_HOOK", "timeout": 10}]}],
-    "UserPromptSubmit": [{"hooks": [{"type": "command", "command": "/usr/bin/node /opt/eva-harness/tools/hook.mjs EVA_MANAGED_HOOK", "timeout": 10}]}],
-    "PreToolUse": [{"matcher": "Read|Edit|Write|NotebookEdit|Agent|Task", "hooks": [{"type": "command", "command": "/usr/bin/node /opt/eva-harness/tools/hook.mjs EVA_MANAGED_HOOK", "timeout": 10}]}],
-    "PostToolUse": [{"hooks": [{"type": "command", "command": "/usr/bin/node /opt/eva-harness/tools/hook.mjs EVA_MANAGED_HOOK", "timeout": 10}]}],
-    "PostToolUseFailure": [{"hooks": [{"type": "command", "command": "/usr/bin/node /opt/eva-harness/tools/hook.mjs EVA_MANAGED_HOOK", "timeout": 10}]}],
-    "Stop": [{"hooks": [{"type": "command", "command": "/usr/bin/node /opt/eva-harness/tools/hook.mjs EVA_MANAGED_HOOK", "timeout": 10}]}]
-  },
-  "env": {
-    "CLAUDE_CODE_ENABLE_TELEMETRY": "1",
-    "OTEL_METRICS_EXPORTER": "otlp",
-    "OTEL_LOGS_EXPORTER": "otlp",
-    "OTEL_EXPORTER_OTLP_PROTOCOL": "http/protobuf",
-    "OTEL_EXPORTER_OTLP_ENDPOINT": "https://REPLACE_WITH_AUTHENTICATED_COLLECTOR",
-    "OTEL_LOG_USER_PROMPTS": "0",
-    "OTEL_LOG_TOOL_DETAILS": "0",
-    "OTEL_LOG_TOOL_CONTENT": "0"
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/node /opt/eva-harness/tools/hook.mjs EVA_MANAGED_HOOK",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/node /opt/eva-harness/tools/hook.mjs EVA_MANAGED_HOOK",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Read|Edit|Write|NotebookEdit|Agent|Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/node /opt/eva-harness/tools/hook.mjs EVA_MANAGED_HOOK",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/node /opt/eva-harness/tools/hook.mjs EVA_MANAGED_HOOK",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUseFailure": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/node /opt/eva-harness/tools/hook.mjs EVA_MANAGED_HOOK",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/node /opt/eva-harness/tools/hook.mjs EVA_MANAGED_HOOK",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
   },
   "env": {
     "CLAUDE_CODE_ENABLE_TELEMETRY": "1",

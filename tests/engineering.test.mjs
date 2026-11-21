@@ -110,7 +110,7 @@ test('read-only delegation permits only reader roles, writers still ask', t => {
 
 test('profile switch removes only harness-added broad asks and rollback restores them', t => {
   const { home } = fixture(t);
-  install(ROOT, home);
+  install(ROOT, home, { delegation: 'manual' });
   assert.ok(readJSON(path.join(home, 'settings.json')).permissions.ask.includes('Agent'));
   install(ROOT, home, { delegation: 'read-only' });
   const readonly = readJSON(path.join(home, 'settings.json'));
@@ -124,13 +124,14 @@ test('profile switch removes only harness-added broad asks and rollback restores
 test('preexisting user agent restrictions survive the read-only profile', t => {
   const { home } = fixture(t);
   writeJSON(path.join(home, 'settings.json'), { permissions: { ask: ['Agent'] } });
-  install(ROOT, home);
+  install(ROOT, home, { delegation: 'manual' });
   install(ROOT, home, { delegation: 'read-only' });
   assert.ok(readJSON(path.join(home, 'settings.json')).permissions.ask.includes('Agent'));
 });
 
 test('manual delegation and session-bound completion reminders remain controlled', t => {
   const { workspace, home } = fixture(t);
+  install(ROOT, home, { delegation: 'manual' });
   const ask = handleHook(ROOT, home, hookInput(workspace, 'PreToolUse', { tool_name: 'Agent', tool_input: { subagent_type: 'research' } }));
   assert.equal(ask.hookSpecificOutput.permissionDecision, 'ask');
   const task = beginTask(home, workspace, 'A substantial change', 'dev-mode', session);
@@ -161,7 +162,7 @@ test('explicit model selection is preserved by reinstall and reversed by rollbac
 
 test('settings drift is preserved conservatively when changing delegation', t => {
   const { home } = fixture(t);
-  install(ROOT, home);
+  install(ROOT, home, { delegation: 'manual' });
   const file = path.join(home, 'settings.json');
   const settings = readJSON(file); settings.customSetting = 'user edit'; writeJSON(file, settings);
   install(ROOT, home, { delegation: 'read-only' });
@@ -176,4 +177,35 @@ test('manual check labels do not resolve inherited object properties as commands
   defineTask(home, task.id, ['Expected outcome'], ['constructor']);
   const result = runCheck(home, task.id, [process.execPath, '-e', 'process.exit(0)'], policy, 'constructor');
   assert.equal(result.check.passed, true);
+});
+
+test('automatic delegation removes launch approvals without changing other permissions', t => {
+  const { workspace, home } = fixture(t);
+  const file = path.join(home, 'settings.json');
+  writeJSON(file, { permissions: { ask: ['Agent', 'Task', 'Agent(developer)', 'Bash(custom *)'], deny: ['Read(private.txt)'], allow: ['Read'] }, customValue: 9 });
+  install(ROOT, home, { delegation: 'manual' });
+  const edited = readJSON(file); edited.customValue = 10; writeJSON(file, edited);
+  install(ROOT, home, { delegation: 'automatic' });
+  const settings = readJSON(file);
+  assert.equal(settings.customValue, 10);
+  assert.equal(settings.permissions.ask.some(x => /^(Agent|Task)(\(|$)/.test(x)), false);
+  assert.ok(settings.permissions.ask.includes('Bash(custom *)'));
+  assert.ok(settings.permissions.ask.includes('Bash(git push *)'));
+  assert.ok(settings.permissions.deny.includes('Read(private.txt)'));
+  assert.ok(settings.permissions.allow.includes('Agent'));
+  assert.ok(settings.permissions.allow.includes('Task'));
+  for (const subagent_type of ['research', 'developer', 'feature-test-writer', 'general-purpose']) {
+    assert.deepEqual(handleHook(ROOT, home, hookInput(workspace, 'PreToolUse', { tool_name: 'Agent', tool_input: { subagent_type } })), {});
+  }
+  assert.match(handleHook(ROOT, home, hookInput(workspace, 'SessionStart')).hookSpecificOutput.additionalContext, /without per-agent approval/);
+  assert.equal(install(ROOT, home).status, 'already-installed');
+  rollback(home);
+  assert.ok(readJSON(file).permissions.ask.includes('Agent'));
+});
+
+test('new installations default to automatic delegation', t => {
+  const { home } = fixture(t);
+  const installed = install(ROOT, home);
+  assert.equal(installed.delegation, 'automatic');
+  assert.equal(readJSON(path.join(home, 'settings.json')).permissions.ask.includes('Agent'), false);
 });

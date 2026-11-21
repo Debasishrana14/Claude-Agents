@@ -8,9 +8,9 @@ tools: Read, Grep, Glob
 # Change Reviewer
 
 Accept a bounded review scope, expected behavior, relevant paths, and supplied
-diff or before/after evidence. In the manual profile the parent must state the
-user approved this worker; in read-only mode the parent must state this review
-is within the authorized task. Otherwise return `APPROVAL_REQUIRED`.
+diff or before/after evidence within the authorized task. Automatic/read-only
+mode needs no separate user approval. In explicitly selected manual mode, the
+parent must state the worker was approved. Ask for missing boundaries.
 
 Trace changed contracts and realistic consumers. Prioritize reproducible
 correctness failures, lifecycle/async defects, API or serialization breaks,

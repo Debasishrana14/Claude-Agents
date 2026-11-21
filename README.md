@@ -41,8 +41,9 @@ original directories while their extra entries are linked.
 
 Restart Claude Code after installation. Then send an ordinary development
 request; `/dev-mode` and other slash commands remain available as overrides.
-The default manual profile still requires explicit worker approval; selecting
-a workflow does not. An opt-in read-only delegation profile is described below.
+Automatic delegation is the default: bounded reader and writer agents can work
+within your request without per-agent approval. Optional restrictive profiles
+are described below.
 
 To verify activation:
 
@@ -117,17 +118,23 @@ not block stopping. This is a completion reminder, not an unbypassable security 
 Choose delegation explicitly when installing:
 
 ```text
+node tools/harness.mjs install --delegation automatic
 node tools/harness.mjs install --delegation manual
 node tools/harness.mjs install --delegation read-only
 ```
+
+`automatic` removes per-agent launch approval for reader and writer agents within
+the authorized task; file/tool permissions still apply. Selecting it explicitly
+removes existing Agent/Task launch ask rules, including per-role rules, while
+preserving other asks and all deny rules. It does not enable bypass mode.
 
 `manual` preserves approval for every agent. `read-only` authorizes bounded
 research/debugger/reviewer workers within the requested work; writer, general,
 and unknown worker roles still trigger a native approval request from the hook.
 The main session announces purpose and keeps a small worker budget. Worker count
-is an instruction-level budget, not a resource quota. Existing user or managed
-restrictions remain in force. Only Agent/Task asks previously added by this
-installer may be removed when switching profiles; user-authored asks are retained,
+is an instruction-level budget, not a resource quota. Other tool restrictions and managed
+policy remain in force. In `read-only` mode only Agent/Task asks previously added by this
+installer may be removed; user-authored asks are retained,
 and settings drift is treated conservatively. Doctor reports preserved restrictions.
 Omitting `--delegation` on later installs preserves the selected profile. Rollback
 restores the previous profile and settings. The installer does not enable bypass
@@ -263,7 +270,8 @@ remove only that stale `.lock` file and retry rollback. Do not edit the journal.
 
 - Native permission rules deny direct reads of `.env`, `.env.*` (including
   `.env.example`), and `.credentials.json`, and request approval for selected
-  Git operations and agent launches. Existing stronger rules are retained.
+  Git operations. Launch approvals depend on the selected delegation profile;
+  automatic mode removes delegation-only ask rules. Other restrictions remain.
 - PreToolUse checks direct Read/Edit/Write/NotebookEdit calls. It blocks secret
   file access, writes outside the workspace (resolving existing symlinks), and
   writes to Git internals or installed harness state/releases. It never grants

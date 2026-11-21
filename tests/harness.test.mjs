@@ -69,7 +69,7 @@ test('install preserves settings and instructions, is idempotent, and rolls back
   const settings = readJSON(path.join(home, 'settings.json'));
   assert.equal(settings.customValue, 42);
   assert.equal(settings.model, 'sonnet');
-  assert.deepEqual(settings.permissions.allow, ['Read']);
+  assert.deepEqual(settings.permissions.allow, ['Read', 'Agent', 'Task']);
   assert.ok(settings.permissions.deny.includes('Read(secret)'));
   assert.equal(settings.hooks.SessionStart.length, 2);
   assert.ok(fs.readFileSync(path.join(home, 'CLAUDE.md'), 'utf8').includes('eva\\ harness\\ test'));
