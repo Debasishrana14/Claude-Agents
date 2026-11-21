@@ -1,12 +1,14 @@
 {
-  "name": "eva-agent-harness",
-  "version": "1.5.0",
+  "name": "engineering-harness",
+  "version": "2.0.0",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=22" },
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "check": "node tools/harness.mjs validate",
-    "test": "node --test tests/harness.test.mjs tests/git-context.test.mjs tests/engineering.test.mjs tests/operations.test.mjs",
+    "test": "node --test tests/*.test.mjs",
     "doctor": "node tools/harness.mjs doctor",
     "install:harness": "node tools/harness.mjs install"
   }

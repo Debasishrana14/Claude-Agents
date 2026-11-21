@@ -201,7 +201,7 @@ test('definition validation rejects body-spoofed names and fixed worker models',
   }
   const validate = () => spawnSync(process.execPath, [path.join(source, 'tools/harness.mjs'), 'validate'], { encoding: 'utf8', windowsHide: true });
   assert.equal(validate().status, 0);
-  const file = path.join(source, '.claude/agents/research.md');
+  const file = path.join(source, 'agents/research.md');
   const original = fs.readFileSync(file, 'utf8');
   fs.writeFileSync(file, original.replace('name: research', 'name: wrong-role') + '\nname: research\n');
   assert.notEqual(validate().status, 0);

@@ -12,7 +12,7 @@
     },
     {
       "label": "integration",
-      "argv": ["node", "--test", "tests/harness.test.mjs", "tests/git-context.test.mjs", "tests/engineering.test.mjs", "tests/operations.test.mjs"],
+      "argv": ["node", "--test", "tests/*.test.mjs"],
       "purpose": "Exercise runtime and installation behavior in temporary workspaces."
     }
   ]

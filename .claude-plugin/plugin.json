@@ -1,0 +1,8 @@
+{
+  "name": "engineering",
+  "version": "2.0.0",
+  "author": {
+    "name": "Engineering Harness maintainers"
+  },
+  "description": "Proportional engineering workflows, bounded agents, review, verification, and optional business knowledge."
+}

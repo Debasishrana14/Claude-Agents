@@ -1,10 +1,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { ROOT, configHome, loadPolicy, readJSON } from '../lib/core.mjs';
-import { doctor, install, rollback } from '../lib/install.mjs';
+import { doctor, install, rollback, uninstall } from '../lib/install.mjs';
 import { commitContext } from '../lib/git-context.mjs';
 import { projectContext, projectContract, registerProject, registeredProjects, resolveProject } from '../lib/project.mjs';
 import { Jobs, executionStatus } from '../lib/jobs.mjs';
+import { validatePlugin } from '../lib/plugin.mjs';
 import { beginTask, checkpoint, completeTask, defineTask, getTask, listTasks, runCheck, status } from '../lib/runtime.mjs';
 
 const args = process.argv.slice(2);
@@ -20,8 +21,8 @@ function validate() {
   loadPolicy(ROOT);
   const counts = {};
   for (const group of ['agents', 'skills', 'rules']) {
-    const directory = path.join(ROOT, '.claude', group);
-    const files = fs.readdirSync(directory).filter(name => name !== 'synced').map(name => path.join(directory, name, ...(group === 'skills' ? ['SKILL.md'] : [])));
+    const directory = path.join(ROOT, group === 'rules' ? '.claude/rules' : group);
+    const files = (fs.existsSync(directory) ? fs.readdirSync(directory) : []).filter(name => name !== 'synced').map(name => path.join(directory, name, ...(group === 'skills' ? ['SKILL.md'] : [])));
     for (const file of files) {
       const text = fs.readFileSync(file, 'utf8').replaceAll('\r\n', '\n');
       if (!text.startsWith('---\n') || !text.slice(4).includes('\n---\n')) throw new Error(`Missing frontmatter: ${file}`);
@@ -35,13 +36,7 @@ function validate() {
     }
     counts[group] = files.length;
   }
-  for (const file of fs.readdirSync(path.join(ROOT, '.claude/rules'))) {
-    const text = fs.readFileSync(path.join(ROOT, '.claude/rules', file), 'utf8');
-    for (const match of text.matchAll(/~\/\.claude\/departments\/([\w.-]+\.md)/g)) {
-      if (!fs.existsSync(path.join(ROOT, '.claude/departments', match[1]))) throw new Error(`Missing guide ${match[1]}`);
-    }
-  }
-  return { valid: true, version: readJSON(path.join(ROOT, 'package.json')).version, ...counts };
+  return { valid: true, version: readJSON(path.join(ROOT, 'package.json')).version, ...counts, plugin: validatePlugin(ROOT) };
 }
 
 try {
@@ -57,6 +52,7 @@ try {
   if (command === 'validate') result = validate();
   else if (command === 'install') { validate(); result = install(ROOT, home, { delegation: option('--delegation'), model: option('--model') }); }
   else if (command === 'rollback') result = rollback(home);
+  else if (command === 'uninstall') result = uninstall(home);
   else if (command === 'doctor') { result = doctor(ROOT, home); if (result.some(x => x.level === 'fail')) process.exitCode = 1; }
   else if (command === 'status') result = status(home, workspace);
   else if (command === 'commit-context') result = commitContext(workspace);
@@ -101,7 +97,7 @@ try {
       const criteria = option('--criteria');
       const labels = option('--required-checks', '');
       const project = fromProject ? projectContract(getTask(home, args[0]).workspace) : null;
-      if (fromProject && !project.file) throw new Error('No .eva-harness.json in the saved task workspace');
+      if (fromProject && !project.file) throw new Error('No .harness.json (or legacy .eva-harness.json) in the saved task workspace');
       result = defineTask(home, args[0], project ? [...project.criteria, ...(criteria ? [criteria] : [])] : criteria ? [criteria] : [], project ? project.checks.map(x => x.label) : labels.split(',').filter(Boolean), project ? Object.fromEntries(project.checks.map(x => [x.label, x.argv])) : {});
     }
     else if (['help', '--help', '-h', undefined].includes(action)) result = { actions: ['begin --title TEXT [--mode MODE]', 'list', 'show ID', 'define ID --criteria TEXT --required-checks label,label | --from-project', 'checkpoint ID --note TEXT [--status running|paused|blocked|cancelled]', 'check ID [--label NAME] -- executable arguments', 'complete ID --summary TEXT [--skip-reason TEXT] [--acceptance-note TEXT]'] };
@@ -116,11 +112,11 @@ try {
     else throw new Error('Unknown task action');
   } else if (command === 'help') result = {
     usage: 'node tools/harness.mjs COMMAND [--home CLAUDE_CONFIG_DIR] [--workspace PROJECT]',
-    commands: ['operations-status', 'execution-status', 'projects list | projects add ALIAS --path CHECKOUT', 'jobs submit --image sha256:ID -- executable arguments', 'jobs start|status|show|cancel|logs|remove ID', 'jobs list', 'validate', 'install [--delegation automatic|manual|read-only] [--model sonnet|opus|haiku]', 'doctor', 'status', 'project-context [--workspace PROJECT]', 'commit-context [--workspace REPOSITORY]', 'rollback', 'task begin --title TEXT [--mode MODE]', 'task list', 'task show ID', 'task define ID --criteria TEXT --required-checks label,label | --from-project', 'task checkpoint ID --note TEXT [--status running|paused|blocked|cancelled]', 'task check ID [--label NAME] -- executable arguments', 'task complete ID --summary TEXT [--skip-reason TEXT] [--acceptance-note TEXT]']
+    commands: ['operations-status', 'execution-status', 'projects list | projects add ALIAS --path CHECKOUT', 'jobs submit --image sha256:ID -- executable arguments', 'jobs start|status|show|cancel|logs|remove ID', 'jobs list', 'validate', 'install [--delegation automatic|manual|read-only] [--model sonnet|opus|haiku]', 'doctor', 'status', 'project-context [--workspace PROJECT]', 'commit-context [--workspace REPOSITORY]', 'rollback', 'uninstall (legacy installation; all recorded upgrades)', 'task begin --title TEXT [--mode MODE]', 'task list', 'task show ID', 'task define ID --criteria TEXT --required-checks label,label | --from-project', 'task checkpoint ID --note TEXT [--status running|paused|blocked|cancelled]', 'task check ID [--label NAME] -- executable arguments', 'task complete ID --summary TEXT [--skip-reason TEXT] [--acceptance-note TEXT]']
   };
   else throw new Error(`Unknown command: ${command}`);
   process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
 } catch (error) {
-  process.stderr.write(`EVA harness: ${error.message}\n`);
+  process.stderr.write(`Engineering harness: ${error.message}\n`);
   process.exitCode = 1;
 }

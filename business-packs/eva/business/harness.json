@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "documents": [
+    { "path": "departments/datalayer.md", "when": "Data state, validation rules, business calculations, shared domain objects" },
+    { "path": "departments/geometry.md", "when": "Geometry, drawing boards, spatial calculations, serialization overlap" },
+    { "path": "departments/visualization.md", "when": "Meshes, labels, materials, transforms, rendering, 3D lifecycle" },
+    { "path": "departments/sectioningBoard.md", "when": "Sectioning view, upstream contracts, view restoration and export" },
+    { "path": "rules/eva-data.md", "when": "Exact data-layer path mapping" },
+    { "path": "rules/eva-geometry.md", "when": "Exact geometry-layer path mapping" },
+    { "path": "rules/eva-visualization.md", "when": "Exact visualization path mappings" },
+    { "path": "rules/eva-sectioning.md", "when": "Exact sectioning path mapping" }
+  ]
+}

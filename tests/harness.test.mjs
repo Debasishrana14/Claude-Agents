@@ -114,11 +114,15 @@ test('legacy directory junctions migrate without losing extra skills and can be 
     const relative = path.relative(ROOT, file).replaceAll('\\', '/');
     return !relative.startsWith('.git') && !relative.startsWith('.claude/skills/synced');
   } });
-  const extra = path.join(source, '.claude/skills/personal');
+  const extra = path.join(source, 'skills/personal');
   fs.mkdirSync(extra); fs.writeFileSync(path.join(extra, 'note.txt'), 'keep me');
   // Extra skill is outside maintained release assets for this fixture.
-  fs.renameSync(extra, path.join(source, '.claude/skills/synced'));
-  for (const group of ['agents', 'skills', 'rules', 'departments']) fs.symlinkSync(path.join(source, '.claude', group), path.join(home, group), process.platform === 'win32' ? 'junction' : 'dir');
+  fs.renameSync(extra, path.join(source, 'skills/synced'));
+  for (const group of ['agents', 'skills', 'rules', 'departments']) {
+    const target = path.join(source, ['agents', 'skills'].includes(group) ? group : `.claude/${group}`);
+    fs.mkdirSync(target, { recursive: true });
+    fs.symlinkSync(target, path.join(home, group), process.platform === 'win32' ? 'junction' : 'dir');
+  }
   fs.writeFileSync(path.join(home, 'CLAUDE.md'), `# Legacy\n@${path.join(source, 'CLAUDE.md')}\n`);
   install(source, home);
   assert.equal(fs.lstatSync(path.join(home, 'skills')).isSymbolicLink(), false);
@@ -126,7 +130,7 @@ test('legacy directory junctions migrate without losing extra skills and can be 
   assert.ok(!fs.readFileSync(path.join(home, 'CLAUDE.md'), 'utf8').includes(`@${path.join(source, 'CLAUDE.md')}\n`));
   rollback(home);
   assert.equal(fs.lstatSync(path.join(home, 'skills')).isSymbolicLink(), true);
-  assert.equal(fs.realpathSync(path.join(home, 'skills')), fs.realpathSync(path.join(source, '.claude/skills')));
+  assert.equal(fs.realpathSync(path.join(home, 'skills')), fs.realpathSync(path.join(source, 'skills')));
 });
 
 test('hook receipts prove execution without retaining sensitive input', t => {

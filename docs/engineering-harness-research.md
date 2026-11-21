@@ -12,7 +12,10 @@ Still outstanding: authenticated/revision-bound design approval, runtime model
 ceiling enforcement with real-version compatibility tests, and repeated comparative
 agent evaluations. Inheritance and conversational policy do not establish those
 controls. Updating source alone does not activate an installed immutable release;
-install the new release and restart Claude. No new live agent benchmark was run.
+update the installation and restart Claude. v2 separates optional business packs
+from the generic core and adds native plugin installation and local enablement;
+see [current setup](team-setup.md) before migrating the older global installation.
+No new live agent quality benchmark was run.
 
 Clarified preference: process is proportional to risk and uncertainty. The session
 user can override harness workflow defaults, individual steps, approval preferences,

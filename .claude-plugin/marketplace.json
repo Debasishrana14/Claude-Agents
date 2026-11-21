@@ -1,0 +1,12 @@
+{
+  "name": "engineering-harness-local",
+  "metadata": { "description": "Local distribution of the generic engineering harness." },
+  "owner": { "name": "Engineering Harness maintainers" },
+  "plugins": [
+    {
+      "name": "engineering",
+      "source": "./",
+      "description": "Generic engineering harness with optional project business packs."
+    }
+  ]
+}

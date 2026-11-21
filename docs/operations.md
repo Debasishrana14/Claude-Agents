@@ -1,13 +1,17 @@
 # Local execution and deployment
 
+For v2 plugin installation and per-clone activation, use [team setup](team-setup.md).
+The CLI below is optional operations tooling. Its historical `eva-harness` storage
+names are retained for compatibility; they do not select business knowledge.
+
 The harness now has a local Docker job path and explicit clone targeting. These
 do not turn every Claude Bash/MCP call into a sandboxed operation. Normal host
 checks and isolated jobs are separate execution paths.
 
 ## Your four checkouts
 
-`projects list` displays locally registered aliases. Current registrations are
-`main`, `secondary`, `tertiary`, and `bug-fixing`. Registration writes only local
+`projects list` displays locally registered aliases. Examples below use
+`main` and `secondary`; register your own names and paths. Registration writes only local
 harness state; it does not edit the application or its Git configuration.
 
 ```text

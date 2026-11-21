@@ -45,8 +45,8 @@ coordinate space, and measured quantity where relevant.
    Explain conflicts between written guidance and current practice, and prefer
    applicable explicit guidance unless the user specifies compatibility needs.
 
-For EVA, consult the relevant domain guide when paths match. Preserve established
-Data/Geometry/Visualization/Sectioning terminology when it carries real meaning.
+Consult relevant project business guides when present. Preserve established
+domain terminology when it carries real meaning.
 Do not invent expansions of abbreviations. Add unit or coordinate-space terms
 only when the implementation establishes them. For example, do not assert `Mm`,
 `World`, `Local`, `get`, `find`, or `create` is your team's convention without

@@ -4,4 +4,5 @@
 .scratch/coordination/
 .scratch/pilot/
 .claude/eva-harness/
+.claude/settings.local.json
 node_modules/
