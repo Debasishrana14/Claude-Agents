@@ -14,4 +14,4 @@ jobs:
         with:
           node-version: 22
       - run: node tools/harness.mjs validate
-      - run: node --test tests/harness.test.mjs
+      - run: node --test tests/harness.test.mjs tests/git-context.test.mjs

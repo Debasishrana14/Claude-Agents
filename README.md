@@ -53,6 +53,75 @@ that a running session loaded it. In Claude, inspect `/context all`, `/memory`,
 or managed configuration can affect the effective settings. The hook records
 prove hook execution; they do not prove semantic compliance with every rule.
 
+## Manual QA and commit drafting
+
+After restarting Claude Code, use either ordinary requests or these commands:
+
+```text
+/manual-qa Prepare manual test cases for EVA-123 using these acceptance criteria: ...
+/manual-qa Turn the staged changes into a QA section I can paste into the ticket.
+/commit-message Read staged changes and draft a message using our repository convention.
+/commit-message Recommend atomic commit groups for these staged changes; do not change staging.
+/commit-message Draft one squash message for the staged result.
+```
+
+These skills run in the main conversation; no additional agent is required.
+They are selected when relevant, and explicit slash commands override routing.
+Both can be used after development when requested, without modifying code.
+
+Manual QA output includes known ticket context, preconditions/test data, actions,
+observable expected results, priority, acceptance-criteria coverage, and gaps.
+New manual cases are **Not run**. A ticket-ready draft does not post a comment
+or change the ticket's status. Provide the ticket content if no connected source
+can retrieve it; the skill must distinguish supplied requirements from inference.
+
+Commit drafting follows your explicit strategy, then repository contribution or
+commitlint/release conventions, then recent subjects. If none establishes a
+convention, it defaults to Conventional Commit style with atomic grouping. A
+mixed index gets suggested groups rather than automatic staging changes. Squash
+drafts describe the combined final behavior. A message request does not commit,
+amend, rebase, or push, and ticket IDs or passing-test claims require evidence.
+
+The read-only context collector is also available directly:
+
+```text
+node tools/harness.mjs commit-context --workspace "PATH TO YOUR PROJECT"
+```
+
+It returns index-based statuses, patches, recent subjects, and completeness
+flags. It excludes unstaged/untracked contents, including unstaged edits to a
+partially staged file. Sensitive filenames are withheld; this is a filename
+filter, not a guarantee that arbitrary source code contains no secrets. Large
+patches, conflicts, and concurrent staging changes are marked incomplete rather
+than presented as a complete review. No patch data is saved by the collector.
+The seven collector tests use temporary Git repositories; they do not stage or
+commit changes in this project. The new skill instructions are structurally
+validated; the historical live pilot below does not evaluate their prose quality.
+
+## Legacy naming recommendations
+
+Use the naming skill from the actual application project:
+
+```text
+/legacy-naming Study naming conventions in src/app/configurator/common/geometry-layer and suggest better variable and function names in this file: ...
+/legacy-naming Recommend a name for this new function based on neighboring code: ...
+/legacy-naming Review these identifiers; keep names that already fit our standards. Do not edit files.
+```
+
+It inspects documented guidance, comparable local symbols, implementations,
+types, and call sites. It distinguishes module-specific legacy patterns from
+repository-wide standards and explains suggestions with concrete evidence and
+confidence. It checks whether a rename touches public contracts, templates,
+serialization keys, or known downstream consumers. No code is renamed unless
+you request implementation separately.
+
+The skill does not arrive with EVA naming standards already learned: this
+repository contains harness configuration and domain guides, not the complete
+application source. Supply the relevant application path/code when invoking it.
+Observed conventions stay in the current review unless you ask to save a
+maintained project standard. The skill is structurally validated; its naming
+judgment has not yet been evaluated on a real EVA code sample.
+
 ## Durable tasks
 
 The SessionStart hook supplies the installed runtime CLI path. Run these commands

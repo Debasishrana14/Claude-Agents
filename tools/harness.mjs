@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { ROOT, configHome, loadPolicy, readJSON } from '../lib/core.mjs';
 import { doctor, install, rollback } from '../lib/install.mjs';
+import { commitContext } from '../lib/git-context.mjs';
 import { beginTask, checkpoint, completeTask, getTask, listTasks, runCheck, status } from '../lib/runtime.mjs';
 
 const args = process.argv.slice(2);
@@ -48,6 +49,7 @@ try {
   else if (command === 'rollback') result = rollback(home);
   else if (command === 'doctor') { result = doctor(ROOT, home); if (result.some(x => x.level === 'fail')) process.exitCode = 1; }
   else if (command === 'status') result = status(home, workspace);
+  else if (command === 'commit-context') result = commitContext(workspace);
   else if (command === 'task') {
     const action = args.shift();
     if (action === 'begin') result = beginTask(home, workspace, option('--title'), option('--mode', 'dev-mode'));
@@ -64,7 +66,7 @@ try {
     else throw new Error('Unknown task action');
   } else if (command === 'help') result = {
     usage: 'node tools/harness.mjs COMMAND [--home CLAUDE_CONFIG_DIR] [--workspace PROJECT]',
-    commands: ['validate', 'install', 'doctor', 'status', 'rollback', 'task begin --title TEXT [--mode MODE]', 'task list', 'task show ID', 'task checkpoint ID --note TEXT [--status running|paused|blocked|cancelled]', 'task check ID -- executable arguments', 'task complete ID --summary TEXT [--skip-reason TEXT]']
+    commands: ['validate', 'install', 'doctor', 'status', 'commit-context [--workspace REPOSITORY]', 'rollback', 'task begin --title TEXT [--mode MODE]', 'task list', 'task show ID', 'task checkpoint ID --note TEXT [--status running|paused|blocked|cancelled]', 'task check ID -- executable arguments', 'task complete ID --summary TEXT [--skip-reason TEXT]']
   };
   else throw new Error(`Unknown command: ${command}`);
   process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);

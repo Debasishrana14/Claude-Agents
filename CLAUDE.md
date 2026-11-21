@@ -11,12 +11,21 @@ routing suggestions. Follow the full request rather than isolated keywords.
 | Explore theory, feasibility, tradeoffs | `/research-dev-mode` | Findings and alternatives |
 | Deliver under an explicit time constraint | `/target-mode` | Scoped delivery with limitations |
 | Long work needing durable handoffs | `/coordinate-work` | Checkpointed progress |
+| Write manual QA cases or a ticket-ready QA update | `/manual-qa` | Human-executable cases and an evidence-aware ticket draft |
+| Draft a staged commit message or commit grouping strategy | `/commit-message` | Index-based message following repository conventions |
+| Recommend variable/function names using legacy conventions | `/legacy-naming` | Evidence-based naming recommendations and compatibility assessment |
 | Ordinary question or discussion | No skill required | Answer directly |
 
 For "diagnose and fix", use development with an investigation phase. Load the
 selected skill through Claude's Skill tool when available. If discovery fails,
 read `~/.claude/skills/<name>/SKILL.md` (under `CLAUDE_CONFIG_DIR` when set) and
 report the discovery failure. Never claim a skill ran unless it actually loaded.
+
+QA case drafting and commit-message drafting can follow development when the
+user requests them; do not create either artifact automatically after every fix.
+Their output remains a draft unless a ticket write or Git action is authorized.
+Naming reviews are read-only unless the user also asks to apply the renames;
+study the application code before claiming its naming conventions are known.
 
 ## Authorization and delegation
 
