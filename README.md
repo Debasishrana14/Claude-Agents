@@ -17,6 +17,10 @@ The November 21 live/application validation is in
 
 ## Install and use
 
+**Need to check installation or understand hooks? Read the [usage and hooks guide](docs/usage-and-hooks.md).**
+It explains the difference between installed and active, the status fields,
+daily workflow commands, and the current rollback/deactivation limitation.
+
 **Sharing with teammates? Start with the [step-by-step team setup guide](docs/team-setup.md).**
 It covers downloading the harness, installing it, linking each person's application
 checkouts, verifying activation, daily prompts, updates, and rollback. Each teammate

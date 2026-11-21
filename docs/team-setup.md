@@ -1,5 +1,8 @@
 # Teammate setup: EVA Agent Harness
 
+For a quick installation/activity check and a plain-language explanation of each
+hook, see [usage and hooks](usage-and-hooks.md).
+
 This harness gives Claude Code a shared working process: specialist agents,
 development workflows, review, manual QA cases, commit drafting, naming advice,
 and records of tasks and checks. Claude Code does the actual AI work.
