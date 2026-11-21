@@ -5,9 +5,15 @@ workflow discovery, versioned installation, rollback, diagnostics, private local
 event receipts, and recoverable task records. Claude Code supplies the model,
 tool execution, native permissions, and session management.
 
-Requires Node.js 22+ and Claude Code. No npm dependencies or background service.
+Requires Node.js 22+ and Claude Code. No npm dependencies. Optional isolated jobs
+require a local Linux Docker engine with working resource controls.
 This release is a tested local foundation, not a certification or a hosted
 enterprise platform.
+
+Local operations, isolated jobs, clone aliases, deployment prerequisites and
+remaining environment dependencies are documented in [docs/operations.md](docs/operations.md).
+The November 21 live/application validation is in
+[docs/validation-2026-11-21.json](docs/validation-2026-11-21.json).
 
 ## Install and use
 
@@ -15,7 +21,7 @@ From this checkout:
 
 ```text
 node tools/harness.mjs validate
-node --test tests/harness.test.mjs
+node --test tests/harness.test.mjs tests/git-context.test.mjs tests/engineering.test.mjs
 node tools/harness.mjs install
 node tools/harness.mjs doctor
 ```
@@ -35,7 +41,8 @@ original directories while their extra entries are linked.
 
 Restart Claude Code after installation. Then send an ordinary development
 request; `/dev-mode` and other slash commands remain available as overrides.
-Delegation still requires explicit approval, but selecting a workflow does not.
+The default manual profile still requires explicit worker approval; selecting
+a workflow does not. An opt-in read-only delegation profile is described below.
 
 To verify activation:
 
@@ -52,6 +59,85 @@ that a running session loaded it. In Claude, inspect `/context all`, `/memory`,
 `/skills`, `/agents`, and `/hooks` as supported by your installed version. Project
 or managed configuration can affect the effective settings. The hook records
 prove hook execution; they do not prove semantic compliance with every rule.
+
+## Engineering workflow and delegation
+
+For substantial work, ask Claude for an observable result and its constraints:
+
+```text
+Fix repeated section regeneration while preserving retained object identity.
+First inspect project guidance and consumers, define acceptance criteria and
+checks, then implement, review the change, and validate. Keep exports compatible.
+```
+
+The development skill now separates exploration, implementation, and verification
+when needed, keeps context focused, and uses a dedicated `/review-change` skill.
+The reviewer worker has read/search tools only, no shell or write access. Numerical
+or performance claims require relevant tolerances, input scale, and comparable
+measurements; no benchmark is invented or launched automatically.
+
+To discover project instructions, scripts, and configured checks without running
+them:
+
+```text
+node tools/harness.mjs project-context --workspace "PATH TO YOUR PROJECT"
+```
+
+Optionally maintain `.eva-harness.json` in the application repository. See this
+repo's own file for the schema: `schemaVersion: 1`, a `criteria` array, and a
+`checks` array of unique `{label, argv, purpose}` entries. Commands are argv arrays,
+not shell strings. These are project data and never grant permission to execute.
+The inspector does not infer or execute a monorepo's scripts, install dependencies,
+or evaluate JavaScript configuration. Read the identified guidance before acting.
+
+For a substantial task, Claude can use the session-bound runtime CLI:
+
+```text
+task begin --title "Fix repeated section generation"
+task define TASK_ID --from-project --criteria "Repeated generation preserves identity"
+task checkpoint TASK_ID --note "Changed paths, decisions, remaining work"
+task check TASK_ID --label unit -- node --test path/to/actual.test.mjs
+task complete TASK_ID --summary "Result" --acceptance-note "Reviewed the stated criteria and downstream contracts"
+```
+
+Use check labels/argv from the actual project contract; `unit` above is illustrative.
+Alternatively define task-specific criteria with `--criteria TEXT --required-checks
+unit,typecheck`. Contracted completion requires every current named check. Imported
+project commands must match recorded argv, so a trivial substitute under the same
+label is rejected. Source changes and new checkpoints invalidate older evidence.
+Acceptance notes remain authored assessments, not proof that a chosen test suite
+is sufficient. Older tasks without a contract retain their original behavior.
+
+The session-bound CLI associates new tasks and resumed checkpoints with the current
+session. Stop hooks remind Claude once if a contracted task remains running. To
+prevent an infinite hook loop, the next Stop with `stop_hook_active` is allowed;
+the event records loop protection. Paused/blocked tasks and unrelated sessions do
+not block stopping. This is a completion reminder, not an unbypassable security gate.
+
+Choose delegation explicitly when installing:
+
+```text
+node tools/harness.mjs install --delegation manual
+node tools/harness.mjs install --delegation read-only
+```
+
+`manual` preserves approval for every agent. `read-only` authorizes bounded
+research/debugger/reviewer workers within the requested work; writer, general,
+and unknown worker roles still trigger a native approval request from the hook.
+The main session announces purpose and keeps a small worker budget. Worker count
+is an instruction-level budget, not a resource quota. Existing user or managed
+restrictions remain in force. Only Agent/Task asks previously added by this
+installer may be removed when switching profiles; user-authored asks are retained,
+and settings drift is treated conservatively. Doctor reports preserved restrictions.
+Omitting `--delegation` on later installs preserves the selected profile. Rollback
+restores the previous profile and settings. The installer does not enable bypass
+permission mode, purchase account access, or elevate OS privileges.
+
+Sonnet remains the default model. Select another supported alias explicitly with
+`install --model opus` or `install --model haiku`; later installs preserve that
+choice and rollback restores it. This changes the main-session default, not the
+fixed role-specific worker models, and does not establish account availability.
+An explicit session `/model` choice and effective managed policy still apply.
 
 ## Manual QA and commit drafting
 
@@ -182,7 +268,7 @@ remove only that stale `.lock` file and retry rollback. Do not edit the journal.
   file access, writes outside the workspace (resolving existing symlinks), and
   writes to Git internals or installed harness state/releases. It never grants
   access that native permissions would reject.
-- The research and debugger workers have read/search tools only. Test writers
+- The research, debugger, and reviewer workers have read/search tools only. Test writers
   cannot execute commands. The developer has an explicit local tool list and
   cannot delegate. Worker writable assignments are instructions, not an OS
   access boundary.

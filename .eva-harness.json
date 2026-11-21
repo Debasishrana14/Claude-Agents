@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "criteria": [
+    "Existing workflow, installation, rollback and permission behavior remains covered by integration tests.",
+    "New runtime behavior has executable regression coverage and changed skills pass structural validation."
+  ],
+  "checks": [
+    {
+      "label": "definitions",
+      "argv": ["node", "tools/harness.mjs", "validate"],
+      "purpose": "Validate maintained definitions and policy."
+    },
+    {
+      "label": "integration",
+      "argv": ["node", "--test", "tests/harness.test.mjs", "tests/git-context.test.mjs", "tests/engineering.test.mjs", "tests/operations.test.mjs"],
+      "purpose": "Exercise runtime and installation behavior in temporary workspaces."
+    }
+  ]
+}

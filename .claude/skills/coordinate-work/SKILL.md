@@ -7,8 +7,9 @@ description: Coordinate long staged implementation with durable checkpoints and 
 
 The main session coordinates. Subagents do not talk to or spawn one another.
 
-Before every worker, propose its bounded task, minimum model, access, expected
-result, and reason delegation is useful; wait for approval. Pass only a concise
+Before each worker, define its bounded task, model, access, expected result, and
+reason delegation is useful. Follow the active delegation profile: read-only
+workers may be permitted, while writers require explicit approval. Pass only a concise
 baton to the next approved stage:
 
 ```text

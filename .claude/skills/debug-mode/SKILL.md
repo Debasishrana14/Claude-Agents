@@ -11,7 +11,7 @@ hypothesis elimination, history, boundary analysis, lifecycle analysis, or
 temporary instrumentation.
 
 Work directly by default. If a separate debugger or research worker would
-materially isolate noisy investigation, propose it and wait for approval.
+materially isolate noisy investigation, follow the active delegation profile.
 
 Stop at an evidence-backed root cause. Report affected scope, rejected
 hypotheses, fix constraints, confidence, and unknowns. Do not implement unless

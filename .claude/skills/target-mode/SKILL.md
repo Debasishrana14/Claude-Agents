@@ -9,8 +9,8 @@ Confirm the concrete target and any stated deadline or time budget. Choose the
 shortest safe path to that target. Avoid speculative refactors, broad research,
 architecture redesign, optional cleanup, and nonessential agents.
 
-Work directly unless one approved worker can finish a genuinely independent
-part faster. Never trade away data safety, repository integrity, authorization,
+Work directly unless one worker permitted by the active delegation profile can
+finish a genuinely independent part faster. Never trade away data safety, repository integrity, authorization,
 or truthful reporting for speed.
 
 Run relevant focused checks within the time budget. Record checks for

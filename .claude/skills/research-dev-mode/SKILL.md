@@ -10,7 +10,8 @@ Identify assumptions, plausible approaches, theory, tradeoffs, failure modes,
 unknowns, and experiments that could distinguish alternatives.
 
 Reading, research, and authorized experiments are allowed directly. Keep
-prototypes isolated within the requested scope. Agents require approval. A
+prototypes isolated within the requested scope. Follow the active delegation
+profile for read-only workers; writer agents require explicit approval. A
 research request does not authorize unrelated production changes.
 
 Return evidence, alternatives, what was learned, remaining uncertainty, and a

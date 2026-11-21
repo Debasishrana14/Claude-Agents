@@ -14,4 +14,15 @@ jobs:
         with:
           node-version: 22
       - run: node tools/harness.mjs validate
-      - run: node --test tests/harness.test.mjs tests/git-context.test.mjs
+      - run: node --test tests/harness.test.mjs tests/git-context.test.mjs tests/engineering.test.mjs tests/operations.test.mjs
+  isolated-runtime:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: docker build -f deploy/Dockerfile.worker -t eva-worker-ci deploy
+      - name: Approve the resolved local immutable image for this test
+        run: echo "EVA_DOCKER_TEST_IMAGE=$(docker image inspect --format '{{.Id}}' eva-worker-ci)" >> "$GITHUB_ENV"
+      - run: node --test tests/operations.test.mjs

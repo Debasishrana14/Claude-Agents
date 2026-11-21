@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "approvedImages": [],
+  "cpus": 2,
+  "memoryMiB": 1024,
+  "pids": 128,
+  "timeoutSeconds": 300,
+  "maxConcurrent": 1,
+  "maxQueued": 10,
+  "maxSnapshotMiB": 64,
+  "maxFiles": 10000
+}

@@ -1,0 +1,179 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { spawnSync } from 'node:child_process';
+import { ROOT, digest, loadPolicy, readJSON, route, writeJSON } from '../lib/core.mjs';
+import { projectContext, projectContract } from '../lib/project.mjs';
+import { install, rollback } from '../lib/install.mjs';
+import { beginTask, checkpoint, completeTask, defineTask, getTask, handleHook, runCheck } from '../lib/runtime.mjs';
+
+const policy = loadPolicy(ROOT);
+const session = digest('engineering-session').slice(0, 32);
+function fixture(t) {
+  const base = fs.mkdtempSync(path.join(os.tmpdir(), 'eva engineering '));
+  const workspace = path.join(base, 'project'), home = path.join(base, 'config');
+  fs.mkdirSync(workspace); fs.mkdirSync(home);
+  t.after(() => fs.rmSync(base, { recursive: true, force: true }));
+  return { base, workspace, home };
+}
+const hookInput = (cwd, hook_event_name, extra = {}) => ({ cwd, session_id: 'engineering-session', hook_event_name, ...extra });
+
+test('project discovery is read-only and exposes explicit validation commands', t => {
+  const { workspace } = fixture(t);
+  writeJSON(path.join(workspace, 'package.json'), { scripts: { test: 'node forbidden-side-effect.mjs' } });
+  fs.writeFileSync(path.join(workspace, 'README.md'), 'Read this guidance');
+  writeJSON(path.join(workspace, '.eva-harness.json'), { schemaVersion: 1, criteria: ['Repeated regeneration preserves identity'], checks: [{ label: 'unit', argv: ['node', '--test', 'unit.test.mjs'] }] });
+  const before = fs.readdirSync(workspace);
+  const context = projectContext(workspace);
+  assert.ok(context.documentsToInspect.includes('README.md'));
+  assert.deepEqual(context.package.scripts, { test: 'node forbidden-side-effect.mjs' });
+  assert.equal(context.contract.checks[0].label, 'unit');
+  assert.deepEqual(fs.readdirSync(workspace), before);
+});
+
+test('project contracts reject malformed and duplicate check definitions', t => {
+  const { workspace } = fixture(t);
+  const file = path.join(workspace, '.eva-harness.json');
+  writeJSON(file, { schemaVersion: 1, criteria: ['Expected behavior'], checks: [{ label: 'unit', argv: ['node'] }, { label: 'unit', argv: ['node'] }] });
+  assert.throws(() => projectContract(workspace), /unique/);
+  writeJSON(file, { schemaVersion: 1, criteria: ['Expected behavior'], checks: [{ label: 'unit', argv: 'node test.js' }] });
+  assert.throws(() => projectContract(workspace), /argv/);
+});
+
+test('contracted completion requires each current named check and acceptance review', t => {
+  const { workspace, home } = fixture(t);
+  fs.writeFileSync(path.join(workspace, 'app.mjs'), 'export const valid = true;');
+  const task = beginTask(home, workspace, 'Implement a contract');
+  defineTask(home, task.id, ['Expected result'], ['unit', 'typecheck']);
+  runCheck(home, task.id, [process.execPath, '-e', 'process.exit(0)'], policy, 'unit');
+  assert.throws(() => completeTask(home, task.id, 'done', 'skip missing check', 'reviewed'), /Missing required checks.*typecheck/);
+  runCheck(home, task.id, [process.execPath, '-e', 'process.exit(0)'], policy, 'typecheck');
+  assert.throws(() => completeTask(home, task.id, 'done'), /acceptance-note/);
+  const result = completeTask(home, task.id, 'done', undefined, 'Reviewed the contract and actual behavior');
+  assert.equal(result.outcome.validation, 'passed');
+  assert.match(result.outcome.acceptanceReview, /Reviewed/);
+});
+
+test('contracted checks become stale after edits or a changed contract', t => {
+  const { workspace, home } = fixture(t);
+  const file = path.join(workspace, 'source.txt'); fs.writeFileSync(file, 'first');
+  const task = beginTask(home, workspace, 'Source changes');
+  defineTask(home, task.id, ['Outcome'], ['unit']);
+  runCheck(home, task.id, [process.execPath, '-e', 'process.exit(0)'], policy, 'unit');
+  fs.writeFileSync(file, 'second');
+  assert.throws(() => completeTask(home, task.id, 'done', undefined, 'reviewed'), /Missing required/);
+  checkpoint(home, task.id, 'Updated implementation');
+  runCheck(home, task.id, [process.execPath, '-e', 'process.exit(0)'], policy, 'unit');
+  defineTask(home, task.id, ['New acceptance outcome'], ['unit']);
+  assert.throws(() => completeTask(home, task.id, 'done', undefined, 'reviewed'), /Missing required/);
+});
+
+test('configured check labels cannot be satisfied with a different command', t => {
+  const { workspace, home } = fixture(t);
+  const task = beginTask(home, workspace, 'Configured validation');
+  const argv = [process.execPath, '-e', 'process.exit(0)'];
+  defineTask(home, task.id, ['Outcome'], ['unit'], { unit: argv });
+  assert.throws(() => runCheck(home, task.id, [process.execPath, '--version'], policy, 'unit'), /does not match/);
+  assert.equal(getTask(home, task.id).checks.length, 0);
+  assert.equal(runCheck(home, task.id, argv, policy, 'unit').check.passed, true);
+});
+
+test('CLI imports project contract and runs its check with actual evidence', t => {
+  const { workspace, home } = fixture(t);
+  const argv = [process.execPath, '-e', 'process.exit(0)'];
+  writeJSON(path.join(workspace, '.eva-harness.json'), { schemaVersion: 1, criteria: ['Expected result'], checks: [{ label: 'unit', argv }] });
+  const task = beginTask(home, workspace, 'CLI contract');
+  const cli = (...args) => spawnSync(process.execPath, [path.join(ROOT, 'tools/harness.mjs'), '--home', home, ...args], { encoding: 'utf8', windowsHide: true });
+  const defined = cli('task', 'define', task.id, '--from-project', '--criteria', 'Task-specific result');
+  assert.equal(defined.status, 0, defined.stderr);
+  assert.equal(JSON.parse(defined.stdout).contract.criteria.length, 2);
+  const checked = cli('task', 'check', task.id, '--label', 'unit', '--', ...argv);
+  assert.equal(checked.status, 0, checked.stderr);
+  const completed = cli('task', 'complete', task.id, '--summary', 'Done', '--acceptance-note', 'Reviewed both criteria');
+  assert.equal(completed.status, 0, completed.stderr);
+  assert.equal(JSON.parse(completed.stdout).status, 'completed');
+});
+
+test('read-only delegation permits only reader roles, writers still ask', t => {
+  const { workspace, home } = fixture(t);
+  install(ROOT, home, { delegation: 'read-only' });
+  for (const subagent_type of ['research', 'debugger', 'reviewer']) {
+    assert.deepEqual(handleHook(ROOT, home, hookInput(workspace, 'PreToolUse', { tool_name: 'Agent', tool_input: { subagent_type } })), {});
+  }
+  for (const subagent_type of ['developer', 'general-purpose', 'unknown']) {
+    const result = handleHook(ROOT, home, hookInput(workspace, 'PreToolUse', { tool_name: 'Agent', tool_input: { subagent_type } }));
+    assert.equal(result.hookSpecificOutput.permissionDecision, 'ask');
+  }
+});
+
+test('profile switch removes only harness-added broad asks and rollback restores them', t => {
+  const { home } = fixture(t);
+  install(ROOT, home);
+  assert.ok(readJSON(path.join(home, 'settings.json')).permissions.ask.includes('Agent'));
+  install(ROOT, home, { delegation: 'read-only' });
+  const readonly = readJSON(path.join(home, 'settings.json'));
+  assert.equal(readonly.permissions.ask.includes('Agent'), false);
+  assert.ok(readonly.permissions.allow.includes('Agent(reviewer)'));
+  rollback(home);
+  assert.ok(readJSON(path.join(home, 'settings.json')).permissions.ask.includes('Agent'));
+  assert.equal(readJSON(path.join(home, 'eva-harness/installation.json')).delegation, 'manual');
+});
+
+test('preexisting user agent restrictions survive the read-only profile', t => {
+  const { home } = fixture(t);
+  writeJSON(path.join(home, 'settings.json'), { permissions: { ask: ['Agent'] } });
+  install(ROOT, home);
+  install(ROOT, home, { delegation: 'read-only' });
+  assert.ok(readJSON(path.join(home, 'settings.json')).permissions.ask.includes('Agent'));
+});
+
+test('manual delegation and session-bound completion reminders remain controlled', t => {
+  const { workspace, home } = fixture(t);
+  const ask = handleHook(ROOT, home, hookInput(workspace, 'PreToolUse', { tool_name: 'Agent', tool_input: { subagent_type: 'research' } }));
+  assert.equal(ask.hookSpecificOutput.permissionDecision, 'ask');
+  const task = beginTask(home, workspace, 'A substantial change', 'dev-mode', session);
+  defineTask(home, task.id, ['Expected behavior'], ['unit']);
+  assert.equal(handleHook(ROOT, home, hookInput(workspace, 'Stop')).decision, 'block');
+  assert.deepEqual(handleHook(ROOT, home, hookInput(workspace, 'Stop', { stop_hook_active: true })), {});
+  assert.deepEqual(handleHook(ROOT, home, { ...hookInput(workspace, 'Stop'), session_id: 'unrelated-session' }), {});
+  checkpoint(home, task.id, 'Waiting on a dependency', 'blocked', session);
+  assert.deepEqual(handleHook(ROOT, home, hookInput(workspace, 'Stop')), {});
+});
+
+test('review routing distinguishes review-only requests from implementation', () => {
+  assert.equal(route('Review this staged code diff for correctness.').mode, 'review-change');
+  assert.equal(route('/review-change Check acceptance coverage.').mode, 'review-change');
+  assert.equal(route('Review and fix this implementation.').mode, 'dev-mode');
+});
+
+test('explicit model selection is preserved by reinstall and reversed by rollback', t => {
+  const { home } = fixture(t);
+  install(ROOT, home);
+  install(ROOT, home, { model: 'opus' });
+  assert.equal(readJSON(path.join(home, 'settings.json')).model, 'opus');
+  assert.equal(install(ROOT, home).status, 'already-installed');
+  rollback(home);
+  assert.equal(readJSON(path.join(home, 'settings.json')).model, 'sonnet');
+  assert.throws(() => install(ROOT, home, { model: 'unrecognized' }), /Model must/);
+});
+
+test('settings drift is preserved conservatively when changing delegation', t => {
+  const { home } = fixture(t);
+  install(ROOT, home);
+  const file = path.join(home, 'settings.json');
+  const settings = readJSON(file); settings.customSetting = 'user edit'; writeJSON(file, settings);
+  install(ROOT, home, { delegation: 'read-only' });
+  const changed = readJSON(file);
+  assert.equal(changed.customSetting, 'user edit');
+  assert.ok(changed.permissions.ask.includes('Agent'));
+});
+
+test('manual check labels do not resolve inherited object properties as commands', t => {
+  const { workspace, home } = fixture(t);
+  const task = beginTask(home, workspace, 'A valid named check');
+  defineTask(home, task.id, ['Expected outcome'], ['constructor']);
+  const result = runCheck(home, task.id, [process.execPath, '-e', 'process.exit(0)'], policy, 'constructor');
+  assert.equal(result.check.passed, true);
+});

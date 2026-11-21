@@ -1,0 +1,6 @@
+ARG BASE_IMAGE=node:22-bookworm-slim
+FROM ${BASE_IMAGE}
+RUN test -x /usr/bin/timeout && node --version
+ENV HOME=/tmp NODE_ENV=production
+USER 65534:65534
+WORKDIR /work
