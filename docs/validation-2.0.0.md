@@ -1,5 +1,34 @@
 # v2 conversion validation
 
+## Public beta preparation — 2026-11-22
+
+Observed on Windows with Node.js 22.16.0 and native Claude Code 2.1.220:
+
+| Check | Observed result |
+| --- | --- |
+| Source suite with `HARNESS_NATIVE_CLAUDE_TESTS=1` | 82 tests: 80 passed, 0 failed, 2 skipped |
+| Source skips | Docker integration without an approved image; file-symlink test without Windows symlink privileges |
+| Exported package suite, default environment | 82 tests: 79 passed, 0 failed, 3 skipped; additionally skips opt-in native integration |
+| Native integration | Discovery, local install, disable/re-enable, marketplace refresh/update, and selected-clone uninstall passed in temporary configurations |
+| Public export | Explicit file list, MIT license, SHA-256 manifest, no ambient business folder, local archive, or Git history |
+| Export regressions | Private path case variants, symlink/junction escapes, omitted runtime files, destination preservation, and metadata collisions covered |
+| Exported CLI and marketplace | Source-independent validation and native marketplace validation passed |
+| Skill definitions | All 9 passed structural validation |
+| Platform CI | Windows, macOS, and Linux matrix configured, including exported-package tests; no remote run claimed |
+
+The prior company pack and application-specific historical records were preserved
+in an ignored local archive and removed from public source selection. Existing
+Git history still contains prior material; publication must start from the reviewed
+clean export, not that history. Export checks are not a general content secret scanner.
+
+Native tests used the executable installed on this host; Windows npm `.cmd`
+wrapper execution was not separately validated by those subprocess tests.
+Representative model-driven development trials, actual macOS/Linux runs, and a
+real monitored private vulnerability-reporting route remain public-release gates.
+No real Claude installation was migrated, and no repository was published.
+
+## Original conversion checks — 2026-11-21
+
 Validated locally on 2026-11-21 with Node.js 22+ and Claude Code 2.1.220 on Windows.
 This records packaging and runtime evidence, not a model-quality benchmark.
 

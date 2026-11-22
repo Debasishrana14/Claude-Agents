@@ -112,7 +112,7 @@ test('legacy directory junctions migrate without losing extra skills and can be 
   const source = path.join(base, 'source');
   fs.cpSync(ROOT, source, { recursive: true, filter: file => {
     const relative = path.relative(ROOT, file).replaceAll('\\', '/');
-    return !relative.startsWith('.git') && !relative.startsWith('.claude/skills/synced');
+    return !['.git', '.local', '.scratch', 'business', 'node_modules'].includes(relative.split('/')[0]) && !relative.startsWith('.claude/skills/synced');
   } });
   const extra = path.join(source, 'skills/personal');
   fs.mkdirSync(extra); fs.writeFileSync(path.join(extra, 'note.txt'), 'keep me');
@@ -236,7 +236,7 @@ test('upgrade deploys a new immutable release and rollback restores the previous
   const source = path.join(base, 'upgrade source');
   fs.cpSync(ROOT, source, { recursive: true, filter: file => {
     const relative = path.relative(ROOT, file).replaceAll('\\', '/');
-    return !relative.startsWith('.git') && !relative.startsWith('.claude/skills/synced');
+    return !['.git', '.local', '.scratch', 'business', 'node_modules'].includes(relative.split('/')[0]) && !relative.startsWith('.claude/skills/synced');
   } });
   const first = install(source, home);
   fs.appendFileSync(path.join(source, 'CLAUDE.md'), '\nA new release rule.\n');

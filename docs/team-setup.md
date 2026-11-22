@@ -17,7 +17,8 @@ Node must be 22+. Plugin support must be available in your Claude Code version.
 The packaging and native installation/switch commands were checked with Claude
 Code 2.1.220 on Windows; this is not a claim about every version or platform.
 
-Download or clone this harness into a permanent folder. In that folder, run:
+Download a reviewed distribution or clone its public source into a permanent
+folder. In that folder, run:
 
 ```powershell
 node tools/harness.mjs validate
@@ -49,7 +50,7 @@ Use the same Claude configuration directory for migration and the new plugin.
 If you set `CLAUDE_CONFIG_DIR`, keep it consistent; the legacy CLI also accepts
 `--home PATH`. Do not run the legacy and plugin installations together.
 
-## 3. Register the local distribution
+## 3. Register the distribution
 
 Run this once per developer, replacing the path with their harness folder:
 
@@ -59,6 +60,17 @@ claude plugin marketplace add "C:\Tools\engineering-harness"
 
 This registers the local source. It does not activate the harness in every
 application. Keep the source folder available for updates.
+
+For a reviewed GitHub release, the maintainer can instead publish the marketplace
+and provide this form:
+
+```powershell
+claude plugin marketplace add OWNER/REPOSITORY
+```
+
+Replace the placeholder with the actual published repository. You use one route,
+not both. A native Claude plugin is sufficient; no separate GitHub extension is
+needed. This beta preparation includes the MIT license but does not publish a repository.
 
 ## 4. Activate an application clone
 
@@ -92,11 +104,24 @@ your-application/
     README.md
 ```
 
-Use `templates/business/` for a new customization or
-`business-packs/eva/business/` for EVA. Copy using your file manager, without
-overwriting an existing business folder blindly. Review and customize the pack.
+Use `templates/business/` for a new customization. Copy using your file manager,
+without overwriting an existing business folder blindly. Before adding private
+material, find the application's local exclude file:
+
+```powershell
+git rev-parse --git-path info/exclude
+```
+
+Open that returned file in an editor and add `/business/`. This keeps new
+customization local without editing the application's shared ignore policy.
+It does not untrack already committed files or erase history. Companies can
+choose an approved private repository for deliberate team sharing later.
+
+Review and customize the pack.
 Organization-specific roles, owners, and business boundaries belong here.
 The core works without this folder. [Business pack guide](business-packs.md).
+Local documents may still be sent to the configured model provider when Claude
+reads them; do not include credentials or assume local AI processing.
 
 ## 6. Work normally
 
@@ -145,3 +170,8 @@ Restart Claude and confirm the version with `claude plugin list`. Source edits
 alone do not update an installed cached plugin. Review business-pack changes
 separately: copied project knowledge is intentionally not overwritten by updates.
 See [usage and hooks](usage-and-hooks.md) for evidence and troubleshooting.
+
+To remove the plugin through Claude, open `/plugin`, select the installation for
+the intended clone, and uninstall it. Local business knowledge and historical
+runtime records are separate data; plugin removal should not be treated as a
+request to delete them. Review those paths explicitly if cleanup is desired.

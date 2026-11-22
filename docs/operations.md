@@ -8,7 +8,7 @@ The harness now has a local Docker job path and explicit clone targeting. These
 do not turn every Claude Bash/MCP call into a sandboxed operation. Normal host
 checks and isolated jobs are separate execution paths.
 
-## Your four checkouts
+## Explicit project checkouts
 
 `projects list` displays locally registered aliases. Examples below use
 `main` and `secondary`; register your own names and paths. Registration writes only local
@@ -28,11 +28,10 @@ a test pass in one checkout as evidence for another checkout.
 
 ## Isolated jobs
 
-Docker and WSL were unavailable on the inspected machine on November 21. The
-backend is implemented and tested with a driver double, but actual Linux
-container integration is skipped locally until the runtime is available. A Linux
-CI job is configured to run the actual integration test, not silently skip it.
-CI configuration is not evidence that a remote CI run has completed.
+Docker readiness depends on the host. Run `execution-status` and inspect actual
+resource controls before use. Driver-double tests do not prove real container
+isolation; the Linux CI integration job is configured separately. A workflow
+definition is not evidence that a remote run has completed.
 
 An operator must first install/configure a local Linux Docker engine. The harness
 does not install virtualization, enable Windows features, restart the machine,
@@ -68,7 +67,7 @@ node tools/harness.mjs jobs cancel JOB_ID
 node tools/harness.mjs jobs remove JOB_ID
 ```
 
-Replace the illustrative image ID and command. Do not submit the whole Angular
+Replace the illustrative image ID and command. Do not submit a whole
 application and assume its dependency tree exists in the generic worker image;
 prepare an appropriate image or target a bounded self-contained workload.
 
@@ -102,16 +101,6 @@ verified before start. Actual enforcement still requires testing on the intended
 host. Docker shares the host kernel; stronger hostile-code isolation requires a
 VM/microVM or a separately administered execution service. Do not expose a Docker
 socket or operator credentials to an untrusted agent.
-
-## Actual application evidence
-
-The neighboring `main` checkout's existing machining-engine suite was executed:
-369 tests passed with a 2 GiB Node heap setting and one worker. A focused geometry
-and operation-validation subset also passed 86 tests. Git status was unchanged
-after each run. Durations are a baseline on this machine, not evidence of a
-performance improvement. This does not cover all legacy Angular UI/browser/E2E
-flows or the other three checkouts. See the dated JSON report for live Claude
-contract/review results and limitations.
 
 ## Team deployment is prepared, not activated
 

@@ -44,18 +44,21 @@ test('core operates without a business pack and cannot load EVA domain guides gl
   assert.doesNotMatch(output.hookSpecificOutput.additionalContext, /configurator|Sectioning|Geometry/);
 });
 
-test('copied EVA knowledge is discovered only in its application clone and is not injected wholesale', t => {
+test('local business knowledge is discovered only in its application clone and is not injected wholesale', t => {
   const { workspace, other, home } = fixture(t);
-  fs.cpSync(path.join(ROOT, 'business-packs/eva/business'), path.join(workspace, 'business'), { recursive: true });
+  const directory = path.join(workspace, 'business');
+  fs.mkdirSync(directory);
+  fs.writeFileSync(path.join(directory, 'README.md'), '# Example project\nSee architecture.md for service boundaries.');
+  fs.writeFileSync(path.join(directory, 'architecture.md'), '# Example service boundaries\nSECRET_DOMAIN_BODY');
+  writeJSON(path.join(directory, 'harness.json'), { schemaVersion: 1, documents: [{ path: 'architecture.md', when: 'Changing service boundaries' }] });
   const context = projectContext(workspace);
   assert.equal(context.business.entryPoint, 'business/README.md');
-  assert.equal(context.business.documents.length, 8);
+  assert.equal(context.business.documents.length, 1);
   assert.equal(projectContext(other).business.entryPoint, null);
-  fs.appendFileSync(path.join(workspace, 'business/departments/geometry.md'), '\nSECRET_DOMAIN_BODY');
   const output = handleHook(ROOT, home, input(workspace), { plugin: true });
   assert.match(output.hookSpecificOutput.additionalContext, /business\/README.md/);
   assert.doesNotMatch(output.hookSpecificOutput.additionalContext, /SECRET_DOMAIN_BODY/);
-  assert.doesNotMatch(JSON.stringify(status(home, workspace)), /SECRET_DOMAIN_BODY|departments\/geometry/);
+  assert.doesNotMatch(JSON.stringify(status(home, workspace)), /SECRET_DOMAIN_BODY|architecture\.md/);
 });
 
 test('a simple business README needs no manifest; indexes cannot grant executable privileges', t => {
@@ -153,11 +156,11 @@ test('legacy removal preserves local task receipts and refuses to overwrite user
 test('upgrades remove only unchanged retired domain assets and rollback restores the previous installation', t => {
   const { home, base } = fixture(t);
   const source = copySource(base);
-  const rule = path.join(source, '.claude/rules/eva-data.md');
+  const rule = path.join(source, '.claude/rules/legacy-domain.md');
   fs.mkdirSync(path.dirname(rule), { recursive: true });
-  fs.copyFileSync(path.join(ROOT, 'business-packs/eva/business/rules/eva-data.md'), rule);
+  fs.writeFileSync(rule, '---\npaths:\n  - "src/example/**"\n---\n\n# Previous domain guidance\n');
   install(source, home);
-  const installedRule = path.join(home, 'rules/eva-data.md');
+  const installedRule = path.join(home, 'rules/legacy-domain.md');
   const original = fs.readFileSync(installedRule, 'utf8');
   fs.unlinkSync(rule);
   install(source, home);

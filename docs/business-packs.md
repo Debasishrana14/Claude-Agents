@@ -12,9 +12,9 @@ Copy `templates/business/` into an application's root and edit `business/README.
 Do not copy the harness's code into this folder. A README alone is supported.
 An ordinary source folder named `business` without a README or index is not a pack.
 
-For existing EVA work, copy `business-packs/eva/business/` instead. Its original
-department guidance and path mappings are preserved as project reference documents.
-They are no longer installed as global rules for unrelated projects.
+The public harness includes only a generic template. Real company packs stay in
+each developer's application checkout or an explicitly approved private repository.
+They are not included in plugin releases or installed as global rules.
 
 Keep the entry point brief. Link only maintained supporting documents and say
 when each matters. There is no required stack, department structure, or list of
@@ -61,11 +61,35 @@ approval contacts stay unknown; do not invent them.
 
 ## Maintenance
 
-Commit shared knowledge for team review. Keep personal activation and runtime
-state out of Git. Review copied pack updates manually; plugin updates do not
-overwrite application knowledge. Separate project-specific facts from broader
-organization policy, and record the scope/date of claims that can become stale.
-Never include credentials or private account settings in a business pack.
+Keep a new pack local by default. Before adding private material, find the
+application clone's local Git exclude file:
+
+```powershell
+git rev-parse --git-path info/exclude
+```
+
+Open the returned file in an editor and add:
+
+```gitignore
+/business/
+/.claude/settings.local.json
+```
+
+This local exclusion does not change the application's shared `.gitignore`.
+Ignoring a path does not remove files already tracked or erase Git history.
+If company material was previously tracked, reconcile it with the repository
+owner rather than assuming an ignore rule makes it private.
+
+An organization may choose to review and share a pack in an approved private
+repository. That is a separate decision from publishing the generic harness.
+Keep personal activation and runtime state out of shared Git repositories.
+Review copied pack updates manually; plugin updates do not overwrite application
+knowledge. Record the scope/date of claims that can become stale, and keep
+credentials and private account settings out of business documents.
+
+Local storage is not local model processing. Claude may read these documents
+and send relevant content to its configured model provider under that service's
+terms and the organization's policy. The harness does not change that boundary.
 
 Actual runnable validation remains in the project contract `.harness.json`:
 `schemaVersion: 1`, `criteria`, and `checks` with `{label, argv, purpose}` entries.

@@ -23,5 +23,8 @@ An optional `business/harness.json` can index guides:
 
 Create the referenced file before adding it to the index. Paths stay inside this
 folder. The index accepts documentation metadata only, not commands, permissions,
-models, or executable hooks. Shared knowledge normally belongs in version control;
-personal activation settings and task state do not. Keep secrets out of this pack.
+models, or executable hooks. Keep real business knowledge local by default: add
+`/business/` to the application's `.git/info/exclude` before copying. A company
+may explicitly choose a private repository for shared knowledge later. Ignore
+rules do not remove already tracked content. Keep secrets out of this pack;
+Claude may send documents it reads to its model provider.

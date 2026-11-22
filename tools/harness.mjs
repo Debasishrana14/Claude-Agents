@@ -6,6 +6,7 @@ import { commitContext } from '../lib/git-context.mjs';
 import { projectContext, projectContract, registerProject, registeredProjects, resolveProject } from '../lib/project.mjs';
 import { Jobs, executionStatus } from '../lib/jobs.mjs';
 import { validatePlugin } from '../lib/plugin.mjs';
+import { exportRelease } from '../lib/release.mjs';
 import { beginTask, checkpoint, completeTask, defineTask, getTask, listTasks, runCheck, status } from '../lib/runtime.mjs';
 
 const args = process.argv.slice(2);
@@ -50,6 +51,7 @@ try {
   const command = ['--help', '-h'].includes(requested) ? 'help' : requested;
   let result;
   if (command === 'validate') result = validate();
+  else if (command === 'export') { validate(); result = exportRelease(ROOT, option('--output')); }
   else if (command === 'install') { validate(); result = install(ROOT, home, { delegation: option('--delegation'), model: option('--model') }); }
   else if (command === 'rollback') result = rollback(home);
   else if (command === 'uninstall') result = uninstall(home);
@@ -112,6 +114,7 @@ try {
     else throw new Error('Unknown task action');
   } else if (command === 'help') result = {
     usage: 'node tools/harness.mjs COMMAND [--home CLAUDE_CONFIG_DIR] [--workspace PROJECT]',
+    distribution: 'export --output PATH prepares an allowlisted public folder without Git history; use source checkout, not an installed runtime release',
     commands: ['operations-status', 'execution-status', 'projects list | projects add ALIAS --path CHECKOUT', 'jobs submit --image sha256:ID -- executable arguments', 'jobs start|status|show|cancel|logs|remove ID', 'jobs list', 'validate', 'install [--delegation automatic|manual|read-only] [--model sonnet|opus|haiku]', 'doctor', 'status', 'project-context [--workspace PROJECT]', 'commit-context [--workspace REPOSITORY]', 'rollback', 'uninstall (legacy installation; all recorded upgrades)', 'task begin --title TEXT [--mode MODE]', 'task list', 'task show ID', 'task define ID --criteria TEXT --required-checks label,label | --from-project', 'task checkpoint ID --note TEXT [--status running|paused|blocked|cancelled]', 'task check ID [--label NAME] -- executable arguments', 'task complete ID --summary TEXT [--skip-reason TEXT] [--acceptance-note TEXT]']
   };
   else throw new Error(`Unknown command: ${command}`);

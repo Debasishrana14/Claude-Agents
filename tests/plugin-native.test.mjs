@@ -7,7 +7,9 @@ import { spawnSync } from 'node:child_process';
 import { ROOT, assets, readJSON } from '../lib/core.mjs';
 
 // Opt-in integration: no model calls, accounts, or real user settings are needed.
-test('native Claude discovers packaged components and switches only the selected clone', { skip: process.env.HARNESS_NATIVE_CLAUDE_TESTS !== '1' }, t => {
+// Windows coverage uses the native executable; npm claude.cmd wrappers are not
+// supported by spawnSync without a shell and need separate compatibility testing.
+test('native Claude discovers, updates, switches, and removes only the selected local installation', { skip: process.env.HARNESS_NATIVE_CLAUDE_TESTS !== '1' }, t => {
   const base = fs.mkdtempSync(path.join(os.tmpdir(), 'native harness integration '));
   t.after(() => fs.rmSync(base, { recursive: true, force: true }));
   const source = path.join(base, 'plugin source'), home = path.join(base, 'config');
@@ -47,4 +49,31 @@ test('native Claude discovers packaged components and switches only the selected
   assert.equal(otherInstalled.scope, 'local');
   cli(['plugin', 'enable', id, '--scope', 'local']);
   assert.equal(readJSON(localSettings).enabledPlugins[id], true);
+
+  const parts = installed.version.match(/^(\d+)\.(\d+)\.(\d+)/);
+  assert.ok(parts, 'The fixture source needs a semantic version');
+  const updatedVersion = `${parts[1]}.${parts[2]}.${Number(parts[3]) + 1}`;
+  for (const relative of ['package.json', '.claude-plugin/plugin.json']) {
+    const file = path.join(source, relative);
+    fs.writeFileSync(file, `${JSON.stringify({ ...readJSON(file), version: updatedVersion }, null, 2)}\n`);
+  }
+  cli(['plugin', 'marketplace', 'update', 'engineering-harness-local']);
+  cli(['plugin', 'update', id, '--scope', 'local']);
+  const updated = JSON.parse(cli(['plugin', 'list', '--json'])).find(item => item.id === id && item.projectPath === workspace);
+  assert.equal(updated.version, updatedVersion);
+  assert.equal(updated.scope, 'local');
+  assert.equal(updated.enabled, true);
+  assert.notEqual(updated.installPath, installed.installPath);
+
+  const otherSettingsBeforeRemoval = readJSON(otherSettings);
+  cli(['plugin', 'uninstall', id, '--scope', 'local']);
+  const remaining = JSON.parse(cli(['plugin', 'list', '--json'], other));
+  assert.equal(remaining.some(item => item.id === id && item.projectPath === workspace), false);
+  const otherRemaining = remaining.find(item => item.id === id && item.projectPath === other);
+  assert.equal(otherRemaining.scope, 'local');
+  assert.equal(otherRemaining.version, otherInstalled.version);
+  assert.equal(otherRemaining.installPath, otherInstalled.installPath);
+  assert.equal(fs.existsSync(otherRemaining.installPath), true);
+  assert.deepEqual(readJSON(otherSettings), otherSettingsBeforeRemoval);
+  assert.match(cli(['plugin', 'details', id], other), /Agents \(6\)/);
 });

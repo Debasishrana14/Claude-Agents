@@ -1,5 +1,9 @@
 # Engineering Harness
 
+Public beta preparation. The local packaging and runtime paths have automated
+coverage; broad platform compatibility and model-quality evaluation are still
+in progress. This is not a promise of error-free or production-ready output.
+
 A generic engineering workflow for Claude Code: understand the task, investigate
 existing code, make a proportionate plan, implement, review, and verify. Small
 fixes stay direct. Substantial work supports bounded delegation and recoverable
@@ -7,7 +11,7 @@ task records. The user-selected model is preserved; Git writes require explicit
 authorization for each action.
 
 Optional **business packs** supply project terminology, architecture, naming,
-organization-specific roles, ownership, and domain checks. The core makes no EVA,
+organization-specific roles, ownership, and domain checks. The core makes no
 language, framework, or industry assumptions. It works without a business pack.
 
 Requires Node.js 22+ on PATH and Claude Code with plugin support. No npm dependencies.
@@ -25,6 +29,11 @@ For a new installation, register this downloaded folder as a local marketplace:
 ```powershell
 claude plugin marketplace add "PATH TO THIS HARNESS CHECKOUT"
 ```
+
+Once the maintainer publishes a reviewed GitHub distribution, developers can use
+`claude plugin marketplace add OWNER/REPOSITORY` instead. That is a placeholder,
+not a published location. GitHub hosts the plugin; no GitHub or editor extension
+is required. See [release preparation](docs/releasing.md).
 
 Then, from your **application repository**, install for your copy of that repo:
 
@@ -59,12 +68,14 @@ Your other clones and teammates have their own local choices. Do not use
 
 Copy [templates/business](templates/business) to `business/` in the application
 root and edit its README. A README alone is enough. Add indexed supporting guides
-only when needed. For EVA, copy [business-packs/eva/business](business-packs/eva/business)
-instead. Review it against the actual checkout before relying on its claims.
+only when needed. Keep real company knowledge local by default: add `/business/`
+to the application's local Git exclude file before adding private material.
+Do not put company packs in this public harness repository.
 
 Business guides specialize responsibilities; they do not grant tool permissions
-or authorize scripts, notifications, commits, or pushes. Shared project knowledge
-normally belongs in Git. See [business pack design](docs/business-packs.md).
+or authorize scripts, notifications, commits, or pushes. A company may deliberately
+share its pack through an approved private repository. Local files read by Claude
+can still be sent to its model provider. See [business pack design](docs/business-packs.md).
 
 ## Checks and operations
 
@@ -102,7 +113,8 @@ clone registrations remain available. [Operations reference](docs/operations.md)
 | `lib/runtime.mjs` | Hooks, private receipts, task contracts, and verification records |
 | `lib/install.mjs` | Legacy transactional installation, rollback, and migration removal |
 | `lib/git-context.mjs`, `lib/jobs.mjs` | Staged evidence and optional isolated jobs |
-| `business-packs/`, `templates/` | Copyable knowledge, never installed as global rules |
+| `release.config.json`, `lib/release.mjs` | Reviewed public file list and clean export |
+| `templates/` | Generic customization starting points; real company knowledge stays separate |
 
 Hooks protect certain direct file operations; they are not a Bash/MCP sandbox.
 Business guidance, design approvals, model ceilings, and Git authorization remain
@@ -110,8 +122,9 @@ instruction-level controls where no corresponding runtime enforcement exists.
 Native permissions and managed policy still apply. The plugin does not install
 the legacy installer's extra native permission rules or grant broad tool access.
 
-The [v2 validation record](docs/validation-2.0.0.md) lists checks and remaining manual acceptance.
 Automated tests and native plugin management checks are evidence of those paths,
-not a comparative model-quality benchmark. Earlier application validation and
-research remain dated evidence: [research](docs/engineering-harness-research.md),
-[earlier validation](docs/validation-2026-11-21.json).
+not a comparative model-quality benchmark. Review the current test output and
+[release checks](docs/releasing.md) before distributing a version.
+The harness uses the [MIT license](LICENSE). A monitored private vulnerability-reporting
+channel still needs configuration before publication. See [security](SECURITY.md) and
+[contributing](CONTRIBUTING.md).

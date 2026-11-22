@@ -17,6 +17,8 @@ state. The list can include installations for other clones: use
 `claude plugin list --json` and match `projectPath` to the intended clone rather
 than treating every listed entry as active here.
 Local enablement belongs in `.claude/settings.local.json`, outside Git.
+Real company knowledge belongs in a local `business/` folder by default; use
+the application's local Git exclude file as described in [business packs](business-packs.md).
 Use the native plugin switch, then start a fresh session:
 
 ```powershell
@@ -92,6 +94,8 @@ root CLAUDE.md as project context.
 Receipts omit prompts, commands, file bodies, results, and secrets. Business guide
 bodies are not injected wholesale. Claude is instructed to read the entry point
 and only relevant guides, and to compare them with actual code evidence.
+Those reads are still part of the normal Claude/model-provider data flow; a
+Git-ignored business folder does not make model processing local.
 
 ## Limits and troubleshooting
 
@@ -111,3 +115,8 @@ installation. A legacy "Not installed" result is expected after migration; use
 The CLI retains rollback for one legacy transaction and uninstall for its recorded
 chain. Neither is the native plugin's on/off switch. Do not delete all Claude
 configuration or disable unrelated hooks to turn off this harness.
+
+For native removal, use `/plugin` and select the installation for the intended
+clone. Removal and disabling are separate from deleting private business documents
+or historical receipts. This beta does not claim universal compatibility or
+error-free output; see [release preparation](releasing.md).

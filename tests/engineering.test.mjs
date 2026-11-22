@@ -165,7 +165,7 @@ test('upgrades preserve a user-selected provider model and rollback preserves th
   const source = path.join(base, 'source');
   fs.cpSync(ROOT, source, { recursive: true, filter: file => {
     const relative = path.relative(ROOT, file).replaceAll('\\', '/');
-    return !relative.startsWith('.git') && !relative.startsWith('.claude/skills/synced');
+    return !['.git', '.local', '.scratch', 'business', 'node_modules'].includes(relative.split('/')[0]) && !relative.startsWith('.claude/skills/synced');
   } });
   install(source, home);
   const file = path.join(home, 'settings.json');

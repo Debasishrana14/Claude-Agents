@@ -6,7 +6,7 @@ jobs:
   validate:
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -15,6 +15,14 @@ jobs:
           node-version: 22
       - run: node tools/harness.mjs validate
       - run: npm test
+      - name: Prepare reviewed public export
+        run: node tools/harness.mjs export --output .scratch/releases/engineering-harness
+      - name: Validate exported package
+        run: node tools/harness.mjs validate
+        working-directory: .scratch/releases/engineering-harness
+      - name: Test exported package
+        run: npm test
+        working-directory: .scratch/releases/engineering-harness
   isolated-runtime:
     runs-on: ubuntu-latest
     steps:
