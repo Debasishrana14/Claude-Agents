@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+- Consult project naming evidence for identifier changes and reject incomplete
+  sentence-style names during development and review.
+
+- Clarify outcome-based use without requiring users to select components.
+- Tighten development context gathering and reuse of plans already in chat.
+- Add a paired evaluation protocol for quality, reviewer effort, and overhead.
+
 ## 2.0.0 — beta preparation
 
 - Package generic engineering workflows as a native Claude Code plugin.

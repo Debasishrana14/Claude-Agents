@@ -54,6 +54,17 @@ evidence that it has the relevant meaning in that module.
 
 ## Recommend and assess compatibility
 
+Prefer names whose operation or predicate is understandable without reading the
+argument. Do not introduce sentence fragments such as
+`hasZoneBetweenReferenceAnd(zone)` that require an argument to finish the name.
+Conjunctions and prepositions are not banned words: judge the complete meaning,
+not a suffix regex. `isPathToReferenceBlocked(zone)` is a candidate only if the
+implementation actually checks that path and the project uses those terms;
+neither the old name nor a restriction label alone establishes this behavior.
+Respect explicit user/project naming requirements and preserve externally fixed
+contracts. Flag existing incomplete names within scope without starting a mass
+rename. Crisp means clear and specific, not the shortest possible identifier.
+
 Keep an existing name if it is accurate and consistent; avoid cosmetic churn.
 Prefer one recommendation per symbol, with an alternative only when a genuine
 semantic choice remains. A local legacy convention can justify retaining a name

@@ -22,6 +22,10 @@ Assess maintainability too: misleading names, duplicated logic, unjustified
 abstractions, hidden side effects, and unrelated diff churn. Tie recommendations
 to concrete costs and local conventions rather than personal style or mandatory
 design patterns. Compare the change with the supplied approved scope/baseline.
+Check new or changed identifiers against documented or observed local naming
+conventions. Flag names whose predicate or operation is incomplete without an
+argument, with a behavior-accurate alternative when evidence supports one.
+Do not turn this into unrelated renames or break fixed external contracts.
 
 Return findings ordered by impact with file/line evidence, trigger, consequence,
 and confidence. Separate unresolved questions from actionable findings. If no

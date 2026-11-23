@@ -22,5 +22,10 @@ local/domain names, cohesive responsibilities, and patterns justified by the
 current problem. Report a material design/scope change to the parent before
 implementing it; do not silently improvise outside the approved assignment.
 
+Use the parent's established naming evidence or consult the legacy-naming
+workflow source when it is missing; do not spawn a naming worker. New names must
+make sense without an argument finishing a sentence fragment. Preserve fixed
+external contracts and report conflicting conventions rather than guessing.
+
 Run relevant focused checks and inspect the diff. Return changed files, result,
 actual validation evidence, unvalidated behavior, and remaining risk.

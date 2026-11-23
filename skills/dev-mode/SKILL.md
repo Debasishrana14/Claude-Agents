@@ -36,8 +36,12 @@ or lifecycle problem; do not add classes/interfaces to satisfy a checklist.
 
 Use names grounded in nearby maintained code and domain meaning. Check verbs
 against query/mutation/allocation behavior, booleans against their condition,
-and quantities against established units/coordinate spaces. Use `/legacy-naming`
-for uncertain conventions or a naming-focused review, not every new variable.
+and quantities against established units/coordinate spaces. Consult `/legacy-naming`
+when introducing or changing identifiers in a project. Reuse conventions already
+established for the current module and symbol kind rather than reloading the
+skill or launching a worker for every variable. Recheck when the domain changes
+or evidence conflicts. Names must convey their operation or predicate without
+an argument completing a sentence fragment.
 Preserve serialized keys, public names, templates, and dynamic references.
 
 Remove code only after inspecting its callers and dynamic/external uses; search
@@ -48,6 +52,18 @@ explain unexpected paths. A larger patch is justified when correctness needs it.
 Use workers only when independent work or context isolation justifies startup
 and integration cost. Follow the shared model/delegation policy, exact scope,
 and disjoint write ownership. Keep sequential work in the main session.
+
+Before editing, resolve the relevant implementation, realistic consumers, local
+naming examples, and verification entry points. Keep this context in the current
+conversation; do not generate a context document for each task. Cite paths when
+explaining consequential reuse or design choices. Missing evidence is an unknown,
+not permission to invent a repository convention. If a search yields nothing,
+describe the search boundary rather than claiming no implementation exists.
+
+Ask only questions whose answers would materially change behavior, compatibility,
+or risk. For other uncertainty, state a reasonable assumption and continue within
+authorized scope. Reuse the approved plan already in the conversation instead of
+asking the user to reformat or repeat it.
 
 ## Verification and recovery
 

@@ -20,6 +20,17 @@ hosted platform or a guarantee of correct code.
 
 ## Start here
 
+The intended advantage is **codebase-aware changes with less repeated prompting
+and less reviewer cleanup**. Describe the outcome; the harness selects relevant
+workflows. You do not need to learn an agent catalog or manually run hooks.
+Existing code and private project guidance inform naming and reuse decisions;
+focused checks and an honest handoff make the result easier to assess.
+
+This advantage is a hypothesis being evaluated, not a measured productivity
+claim. Native Claude Code already supplies tools and orchestration. Compare the
+added project guidance and workflow against that baseline using the
+[evaluation protocol](docs/evaluating-quality.md), including overhead on small tasks.
+
 Read the [step-by-step setup](docs/team-setup.md). If you previously used
 `node tools/harness.mjs install`, follow its migration section first: the legacy
 global import must be removed before a plugin switch can fully control loading.

@@ -28,6 +28,9 @@ shared-helper consumers before proposing reuse or repair. Flag unnecessary
 layers, speculative patterns, hidden side effects, and unexplained diff churn
 with concrete maintenance costs. SOLID/OOP and design patterns are tools for
 actual design problems, not mandatory structures for every patch.
+For changed identifiers, consult legacy-naming guidance and established local
+evidence. Reject new sentence-fragment names that rely on arguments to finish
+their meaning; avoid blanket suffix bans and preserve fixed external contracts.
 
 Compare the task diff with its pre-existing dirty baseline and approved scope.
 Identify unrelated edits or contract/dependency changes needing a design update.

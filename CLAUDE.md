@@ -4,6 +4,12 @@ Select the workflow from the user's requested outcome. Work directly by default;
 workflow selection does not require confirmation. Explicit user modes override
 routing suggestions. Follow the full request rather than isolated keywords.
 
+Users describe outcomes; do not require them to choose skills, hooks, or agents.
+Load only the workflow needed for the current decision, not a chain of every
+available skill. Hooks run through configured lifecycle events; never ask users
+to invoke them as workflow commands. Explain component selection only when it
+affects cost, permissions, or a consequential decision.
+
 | Request | Workflow | Outcome |
 | --- | --- | --- |
 | Implement, fix, clean up, refactor | `/dev-mode` | Implement and validate the authorized change |
@@ -31,6 +37,9 @@ the full QA skill only when useful. Draft commit messages when requested.
 These outputs remain drafts unless a ticket write or Git action is authorized.
 Naming reviews are read-only unless the user also asks to apply the renames;
 study the application code before claiming its naming conventions are known.
+Consult the legacy-naming workflow for project naming decisions and reuse its
+established local evidence. Avoid new names that require arguments to complete
+their meaning; respect explicit project/user requirements and fixed contracts.
 
 ## Authorization and delegation
 

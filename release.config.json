@@ -22,6 +22,7 @@
     "deploy/execution.example.json",
     "deploy/managed-settings.example.json",
     "docs/business-packs.md",
+    "docs/evaluating-quality.md",
     "docs/operations.md",
     "docs/releasing.md",
     "docs/team-setup.md",
