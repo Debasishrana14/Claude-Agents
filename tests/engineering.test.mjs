@@ -224,15 +224,29 @@ test('review routing distinguishes review-only requests from implementation', ()
   assert.equal(route('Review and fix this implementation.').mode, 'dev-mode');
 });
 
-test('explicit model selection is preserved by reinstall and reversed by rollback', t => {
+test('installation leaves model selection dynamic across reinstall and explicit override rollback', t => {
   const { home } = fixture(t);
   install(ROOT, home);
+  assert.equal(Object.hasOwn(readJSON(path.join(home, 'settings.json')), 'model'), false);
+  assert.equal(install(ROOT, home).status, 'already-installed');
   install(ROOT, home, { model: 'opus' });
   assert.equal(readJSON(path.join(home, 'settings.json')).model, 'opus');
   assert.equal(install(ROOT, home).status, 'already-installed');
   rollback(home);
-  assert.equal(readJSON(path.join(home, 'settings.json')).model, 'sonnet');
+  assert.equal(Object.hasOwn(readJSON(path.join(home, 'settings.json')), 'model'), false);
   assert.throws(() => install(ROOT, home, { model: 'unrecognized' }), /Model must/);
+});
+
+test('upgrade respects removal of a saved model instead of restoring the previous pin', t => {
+  const { home } = fixture(t);
+  install(ROOT, home, { model: 'opus' });
+  const file = path.join(home, 'settings.json');
+  const settings = readJSON(file);
+  delete settings.model;
+  writeJSON(file, settings);
+  install(ROOT, home);
+  assert.equal(Object.hasOwn(readJSON(file), 'model'), false);
+  assert.equal(install(ROOT, home).status, 'already-installed');
 });
 
 test('upgrades preserve a user-selected provider model and rollback preserves that choice', t => {

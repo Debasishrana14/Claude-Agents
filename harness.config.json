@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "defaultModel": "sonnet",
+  "defaultModel": "inherit",
   "defaultDelegation": "automatic",
   "maxCheckSeconds": 300,
   "maxEventsPerSession": 5000,
