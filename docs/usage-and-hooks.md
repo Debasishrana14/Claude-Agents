@@ -88,8 +88,8 @@ optimization or explicit choices justify otherwise. Delegation is proportional.
 
 You do not launch hooks manually during development. The plugin owns their
 lifecycle. It does not add a global CLAUDE.md import: generic instructions are
-delivered by SessionStart, because Claude does not automatically load a plugin's
-root CLAUDE.md as project context.
+delivered as a short SessionStart core, because Claude does not automatically load
+a plugin's root CLAUDE.md as project context. Detailed workflows load on demand.
 
 Receipts omit prompts, commands, file bodies, results, and secrets. Business guide
 bodies are not injected wholesale. Claude is instructed to read the entry point
@@ -98,6 +98,37 @@ Those reads are still part of the normal Claude/model-provider data flow; a
 Git-ignored business folder does not make model processing local.
 
 ## Limits and troubleshooting
+
+For a substantial task, define required commands before recording checks. Prefer
+`task define ID --from-project` with a reviewed `.harness.json`:
+
+```json
+{
+  "schemaVersion": 1,
+  "criteria": ["Describe the observable behavior"],
+  "checks": [{ "label": "unit", "argv": ["node", "--test", "tests/unit.test.mjs"] }],
+  "inputs": ["config/local-runtime.json"]
+}
+```
+
+`inputs` optionally includes ignored workspace files that affect validation.
+These are literal relative file paths, not directories or globs. Missing files
+are fingerprinted as missing; adding, changing, or deleting them invalidates old
+results. No file contents are written to task evidence. Environment variables,
+external dependencies and undeclared ignored files remain outside this coverage.
+
+Without a project contract, `task define` accepts `--criteria TEXT`,
+`--required-checks unit` and `--check-commands JSON`, where JSON maps each label
+to its argv array. Use your shell's quoting rules for JSON. Existing tasks with
+unbound required labels must be redefined before those labels can pass. Review
+commands before running them; binding argv does not prove a test is meaningful.
+
+Run `task check ID --label unit -- node --test tests/unit.test.mjs` explicitly.
+A checkpoint cannot clear a failure. Rerun the same label and command successfully
+against current inputs after repairing it. If blocked, save a paused/blocked
+checkpoint and report the limit. Completion evidence distinguishes local command
+execution from test adequacy and independent review; acceptance notes remain
+authored assessments.
 
 Hooks are not universal shell or MCP isolation, authenticated human approval,
 semantic code verification, or runtime enforcement of model ceilings. Git actions

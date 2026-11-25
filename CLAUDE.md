@@ -53,6 +53,10 @@ their meaning; respect explicit project/user requirements and fixed contracts.
   Workers cannot delegate or expand scope. The optional `manual` and `read-only`
   profiles impose stricter launch approvals only when explicitly selected.
   Native tool permissions and managed policy still apply to each agent's actions.
+  Decide after initial investigation and revisit when uncertainty or separable
+  work emerges; the user need not request agents. Keep small, dependent work
+  direct. Delegate independent questions, disjoint implementation, or useful
+  fresh-context review; explain the benefit, not just the number of workers.
 - Do not stage, unstage, commit, amend, rebase, or push unless the user explicitly
   requests that Git action. Implementation, cleanup, review, message drafting,
   and task completion grant no Git write authorization. Authorization to stage
@@ -119,7 +123,7 @@ For multi-step changes, use the runtime CLI supplied by the SessionStart hook:
 
 1. `task begin --title "Short non-sensitive objective" --mode dev-mode`.
    Define substantial tasks with `task define ID --criteria "Expected outcome"
-   --required-checks unit,typecheck`, or `task define ID --from-project`.
+   --required-checks unit,typecheck --check-commands JSON`, or `task define ID --from-project`.
    With `--from-project`, optional `--criteria` adds the task-specific outcome.
 2. Save `task checkpoint ID --note "Changed files, decisions, remaining work"`
    after meaningful changes and before checks. Each checkpoint starts a new

@@ -7,7 +7,7 @@ import { spawnSync } from 'node:child_process';
 import { ROOT, assets, digest, loadPolicy, readJSON, route, writeJSON } from '../lib/core.mjs';
 import { projectContext, projectContract } from '../lib/project.mjs';
 import { install, rollback } from '../lib/install.mjs';
-import { beginTask, checkpoint, completeTask, defineTask, getTask, handleHook, runCheck } from '../lib/runtime.mjs';
+import { beginTask, checkpoint, completeTask, defineTask, fingerprint, getTask, handleHook, runCheck } from '../lib/runtime.mjs';
 
 const policy = loadPolicy(ROOT);
 const session = digest('engineering-session').slice(0, 32);
@@ -19,6 +19,69 @@ function fixture(t) {
   return { base, workspace, home };
 }
 const hookInput = (cwd, hook_event_name, extra = {}) => ({ cwd, session_id: 'engineering-session', hook_event_name, ...extra });
+
+test('required checks need bound commands, including legacy saved contracts', t => {
+  const { workspace, home } = fixture(t);
+  const task = beginTask(home, workspace, 'Bound validation');
+  assert.throws(() => defineTask(home, task.id, ['Behavior'], ['unit']), /bound command/);
+  const file = path.join(home, 'eva-harness', 'state', 'tasks', `${task.id}.json`);
+  writeJSON(file, { ...task, contract: { criteria: ['Behavior'], requiredChecks: ['unit'] } });
+  assert.throws(() => runCheck(home, task.id, [process.execPath, '-e', '0'], policy, 'unit'), /no bound command/);
+  assert.throws(() => completeTask(home, task.id, 'Done', undefined, 'Reviewed'), /Missing required/);
+});
+
+test('checkpoint cannot erase failures; same command on repaired source resolves them', t => {
+  const { workspace, home } = fixture(t);
+  const source = path.join(workspace, 'valid.txt');
+  fs.writeFileSync(source, 'false');
+  const task = beginTask(home, workspace, 'Regression lifecycle');
+  const argv = [process.execPath, '-e', "process.exit(require('fs').readFileSync('valid.txt','utf8') === 'true' ? 0 : 1)"];
+  runCheck(home, task.id, argv, policy, 'regression');
+  checkpoint(home, task.id, 'Only bookkeeping changed');
+  runCheck(home, task.id, [process.execPath, '-e', '0'], policy, 'unit');
+  assert.throws(() => completeTask(home, task.id, 'Done'), /unresolved failed/);
+  runCheck(home, task.id, [process.execPath, '-e', '0'], policy, 'regression');
+  assert.throws(() => completeTask(home, task.id, 'Done'), /unresolved failed/);
+  fs.writeFileSync(source, 'true');
+  checkpoint(home, task.id, 'Repaired cause');
+  runCheck(home, task.id, argv, policy, 'regression');
+  assert.equal(completeTask(home, task.id, 'Repaired').outcome.validation, 'passed');
+});
+
+test('declared ignored input changes and deletion invalidate check evidence', t => {
+  const { workspace, home } = fixture(t);
+  assert.equal(spawnSync('git', ['init'], { cwd: workspace, windowsHide: true }).status, 0);
+  fs.writeFileSync(path.join(workspace, '.gitignore'), 'runtime.json\n');
+  const input = path.join(workspace, 'runtime.json');
+  fs.writeFileSync(input, 'first');
+  writeJSON(path.join(workspace, '.harness.json'), { schemaVersion: 1, criteria: [], checks: [], inputs: ['runtime.json'] });
+  const before = fingerprint(workspace);
+  const task = beginTask(home, workspace, 'Configured inputs');
+  runCheck(home, task.id, [process.execPath, '-e', '0'], policy);
+  fs.writeFileSync(input, 'second');
+  assert.notEqual(fingerprint(workspace), before);
+  assert.throws(() => completeTask(home, task.id, 'Done'), /Run a check/);
+  const changed = fingerprint(workspace);
+  fs.unlinkSync(input);
+  assert.notEqual(fingerprint(workspace), changed);
+  runCheck(home, task.id, [process.execPath, '-e', '0'], policy);
+  const outcome = completeTask(home, task.id, 'Done').outcome;
+  assert.deepEqual(outcome.evidence.inputs, ['runtime.json']);
+  assert.match(outcome.evidence.adequacy, /does not establish/);
+  for (const invalid of ['../outside', '/absolute', 'a/../b', '.']) {
+    writeJSON(path.join(workspace, '.harness.json'), { schemaVersion: 1, criteria: [], checks: [], inputs: [invalid] });
+    assert.throws(() => fingerprint(workspace), /relative file paths/);
+  }
+});
+
+test('plugin startup keeps a bounded core instead of loading the full workflow', t => {
+  const { workspace, home } = fixture(t);
+  const context = handleHook(ROOT, home, hookInput(workspace, 'SessionStart'), { plugin: true }).hookSpecificOutput.additionalContext;
+  assert.ok(Buffer.byteLength(context) < 2200, `Startup context was ${Buffer.byteLength(context)} bytes`);
+  assert.match(context, /Only the main session delegates/);
+  assert.match(context, /each require explicit user authorization/);
+  assert.doesNotMatch(context, /## Authorization and delegation/);
+});
 
 test('project discovery is read-only and exposes explicit validation commands', t => {
   const { workspace } = fixture(t);
@@ -46,7 +109,7 @@ test('contracted completion requires each current named check and acceptance rev
   const { workspace, home } = fixture(t);
   fs.writeFileSync(path.join(workspace, 'app.mjs'), 'export const valid = true;');
   const task = beginTask(home, workspace, 'Implement a contract');
-  defineTask(home, task.id, ['Expected result'], ['unit', 'typecheck']);
+  defineTask(home, task.id, ['Expected result'], ['unit', 'typecheck'], Object.fromEntries(['unit', 'typecheck'].map(label => [label, [process.execPath, '-e', 'process.exit(0)']])));
   runCheck(home, task.id, [process.execPath, '-e', 'process.exit(0)'], policy, 'unit');
   assert.throws(() => completeTask(home, task.id, 'done', 'skip missing check', 'reviewed'), /Missing required checks.*typecheck/);
   runCheck(home, task.id, [process.execPath, '-e', 'process.exit(0)'], policy, 'typecheck');
@@ -60,13 +123,13 @@ test('contracted checks become stale after edits or a changed contract', t => {
   const { workspace, home } = fixture(t);
   const file = path.join(workspace, 'source.txt'); fs.writeFileSync(file, 'first');
   const task = beginTask(home, workspace, 'Source changes');
-  defineTask(home, task.id, ['Outcome'], ['unit']);
+  defineTask(home, task.id, ['Outcome'], ['unit'], Object.fromEntries(['unit'].map(label => [label, [process.execPath, '-e', 'process.exit(0)']])));
   runCheck(home, task.id, [process.execPath, '-e', 'process.exit(0)'], policy, 'unit');
   fs.writeFileSync(file, 'second');
   assert.throws(() => completeTask(home, task.id, 'done', undefined, 'reviewed'), /Missing required/);
   checkpoint(home, task.id, 'Updated implementation');
   runCheck(home, task.id, [process.execPath, '-e', 'process.exit(0)'], policy, 'unit');
-  defineTask(home, task.id, ['New acceptance outcome'], ['unit']);
+  defineTask(home, task.id, ['New acceptance outcome'], ['unit'], Object.fromEntries(['unit'].map(label => [label, [process.execPath, '-e', 'process.exit(0)']])));
   assert.throws(() => completeTask(home, task.id, 'done', undefined, 'reviewed'), /Missing required/);
 });
 
@@ -94,6 +157,18 @@ test('CLI imports project contract and runs its check with actual evidence', t =
   const completed = cli('task', 'complete', task.id, '--summary', 'Done', '--acceptance-note', 'Reviewed both criteria');
   assert.equal(completed.status, 0, completed.stderr);
   assert.equal(JSON.parse(completed.stdout).status, 'completed');
+});
+
+test('CLI binds explicit task commands and rejects substitution', t => {
+  const { workspace, home } = fixture(t);
+  const task = beginTask(home, workspace, 'Task-specific validation');
+  const argv = [process.execPath, '--version'];
+  const cli = (...args) => spawnSync(process.execPath, [path.join(ROOT, 'tools/harness.mjs'), '--home', home, ...args], { encoding: 'utf8', windowsHide: true });
+  const defined = cli('task', 'define', task.id, '--criteria', 'Runtime is available', '--required-checks', 'runtime', '--check-commands', JSON.stringify({ runtime: argv }));
+  assert.equal(defined.status, 0, defined.stderr);
+  assert.deepEqual(JSON.parse(defined.stdout).contract.checkCommands.runtime, argv);
+  assert.equal(cli('task', 'check', task.id, '--label', 'runtime', '--', process.execPath, '-e', '0').status, 1);
+  assert.equal(cli('task', 'check', task.id, '--label', 'runtime', '--', ...argv).status, 0);
 });
 
 test('read-only delegation permits only reader roles, writers still ask', t => {
@@ -135,7 +210,7 @@ test('manual delegation and session-bound completion reminders remain controlled
   const ask = handleHook(ROOT, home, hookInput(workspace, 'PreToolUse', { tool_name: 'Agent', tool_input: { subagent_type: 'research' } }));
   assert.equal(ask.hookSpecificOutput.permissionDecision, 'ask');
   const task = beginTask(home, workspace, 'A substantial change', 'dev-mode', session);
-  defineTask(home, task.id, ['Expected behavior'], ['unit']);
+  defineTask(home, task.id, ['Expected behavior'], ['unit'], Object.fromEntries(['unit'].map(label => [label, [process.execPath, '-e', 'process.exit(0)']])));
   assert.equal(handleHook(ROOT, home, hookInput(workspace, 'Stop')).decision, 'block');
   assert.deepEqual(handleHook(ROOT, home, hookInput(workspace, 'Stop', { stop_hook_active: true })), {});
   assert.deepEqual(handleHook(ROOT, home, { ...hookInput(workspace, 'Stop'), session_id: 'unrelated-session' }), {});
@@ -225,7 +300,7 @@ test('settings drift is preserved conservatively when changing delegation', t =>
 test('manual check labels do not resolve inherited object properties as commands', t => {
   const { workspace, home } = fixture(t);
   const task = beginTask(home, workspace, 'A valid named check');
-  defineTask(home, task.id, ['Expected outcome'], ['constructor']);
+  defineTask(home, task.id, ['Expected outcome'], ['constructor'], Object.fromEntries(['constructor'].map(label => [label, [process.execPath, '-e', 'process.exit(0)']])));
   const result = runCheck(home, task.id, [process.execPath, '-e', 'process.exit(0)'], policy, 'constructor');
   assert.equal(result.check.passed, true);
 });

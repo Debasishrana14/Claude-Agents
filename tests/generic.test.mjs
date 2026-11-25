@@ -112,8 +112,8 @@ test('plugin startup supplies generic policy and namespaced workflow routing wit
   const { workspace, home } = fixture(t);
   validatePlugin(ROOT);
   const start = handleHook(ROOT, home, input(workspace), { plugin: true }).hookSpecificOutput.additionalContext;
-  assert.match(start, /# Engineering Harness/);
-  assert.match(start, /Do not stage, unstage, commit/);
+  assert.match(start, /Engineering harness v[\d.]+ hook is active/);
+  assert.match(start, /Stage, unstage, commit.*each require explicit user authorization/);
   assert.match(start, /engineering:dev-mode/);
   assert.match(start, /workers inherit/i);
   assert.equal(fs.existsSync(path.join(home, 'CLAUDE.md')), false);
@@ -177,7 +177,7 @@ test('plugin hook entry point works from paths containing spaces and emits real 
   const source = copySource(base);
   const result = spawnSync(process.execPath, [path.join(source, 'tools/hook.mjs'), '--plugin', '--home', home], { cwd: workspace, input: JSON.stringify(input(workspace)), encoding: 'utf8', windowsHide: true });
   assert.equal(result.status, 0, result.stderr);
-  assert.match(JSON.parse(result.stdout).hookSpecificOutput.additionalContext, /# Engineering Harness/);
+  assert.match(JSON.parse(result.stdout).hookSpecificOutput.additionalContext, /Engineering harness v[\d.]+ hook is active/);
   assert.equal(status(home, workspace).activation.sessionStartSeen, true);
 });
 
@@ -189,6 +189,6 @@ test('the plugin hook launcher resolves CLAUDE_PLUGIN_ROOT through a shell with 
   const command = readJSON(path.join(source, 'hooks/hooks.json')).hooks.SessionStart[0].hooks[0].command;
   const result = spawnSync(bash, ['-c', command], { cwd: workspace, env: { ...process.env, CLAUDE_PLUGIN_ROOT: source, CLAUDE_CONFIG_DIR: home }, input: JSON.stringify(input(workspace)), encoding: 'utf8', windowsHide: true });
   assert.equal(result.status, 0, result.stderr);
-  assert.match(JSON.parse(result.stdout).hookSpecificOutput.additionalContext, /# Engineering Harness/);
+  assert.match(JSON.parse(result.stdout).hookSpecificOutput.additionalContext, /Engineering harness v[\d.]+ hook is active/);
   assert.equal(status(home, workspace).recentEvents[0].transport, 'plugin');
 });

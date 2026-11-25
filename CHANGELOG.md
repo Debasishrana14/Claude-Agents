@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Bind every required validation check to explicit argv; reject unbound legacy
+  contracts until redefined. Keep failures open across checkpoints until the
+  same check succeeds on current inputs.
+- Fingerprint declared ignored project inputs and record evidence limitations.
+- Replace full plugin startup policy injection with a bounded core and load
+  workflow details on demand. Clarify automatic delegation and causal diagnosis.
+
 - Consult project naming evidence for identifier changes and reject incomplete
   sentence-style names during development and review.
 

@@ -98,11 +98,13 @@ try {
       if (fromProject) args.splice(args.indexOf('--from-project'), 1);
       const criteria = option('--criteria');
       const labels = option('--required-checks', '');
+      const commands = JSON.parse(option('--check-commands', '{}'));
       const project = fromProject ? projectContract(getTask(home, args[0]).workspace) : null;
       if (fromProject && !project.file) throw new Error('No .harness.json (or legacy .eva-harness.json) in the saved task workspace');
-      result = defineTask(home, args[0], project ? [...project.criteria, ...(criteria ? [criteria] : [])] : criteria ? [criteria] : [], project ? project.checks.map(x => x.label) : labels.split(',').filter(Boolean), project ? Object.fromEntries(project.checks.map(x => [x.label, x.argv])) : {});
+      if (project && Object.keys(commands).length) throw new Error('Choose --from-project or --check-commands');
+      result = defineTask(home, args[0], project ? [...project.criteria, ...(criteria ? [criteria] : [])] : criteria ? [criteria] : [], project ? project.checks.map(x => x.label) : labels.split(',').filter(Boolean), project ? Object.fromEntries(project.checks.map(x => [x.label, x.argv])) : commands);
     }
-    else if (['help', '--help', '-h', undefined].includes(action)) result = { actions: ['begin --title TEXT [--mode MODE]', 'list', 'show ID', 'define ID --criteria TEXT --required-checks label,label | --from-project', 'checkpoint ID --note TEXT [--status running|paused|blocked|cancelled]', 'check ID [--label NAME] -- executable arguments', 'complete ID --summary TEXT [--skip-reason TEXT] [--acceptance-note TEXT]'] };
+    else if (['help', '--help', '-h', undefined].includes(action)) result = { actions: ['begin --title TEXT [--mode MODE]', 'list', 'show ID', 'define ID --criteria TEXT --required-checks label,label --check-commands JSON | --from-project', 'checkpoint ID --note TEXT [--status running|paused|blocked|cancelled]', 'check ID [--label NAME] -- executable arguments', 'complete ID --summary TEXT [--skip-reason TEXT] [--acceptance-note TEXT]'] };
     else if (action === 'checkpoint') { const status = option('--status', 'running'); const note = option('--note'); result = checkpoint(home, args[0], note, status, session); }
     else if (action === 'check') {
       const label = option('--label', 'default');
@@ -115,7 +117,7 @@ try {
   } else if (command === 'help') result = {
     usage: 'node tools/harness.mjs COMMAND [--home CLAUDE_CONFIG_DIR] [--workspace PROJECT]',
     distribution: 'export --output PATH prepares an allowlisted public folder without Git history; use source checkout, not an installed runtime release',
-    commands: ['operations-status', 'execution-status', 'projects list | projects add ALIAS --path CHECKOUT', 'jobs submit --image sha256:ID -- executable arguments', 'jobs start|status|show|cancel|logs|remove ID', 'jobs list', 'validate', 'install [--delegation automatic|manual|read-only] [--model sonnet|opus|haiku]', 'doctor', 'status', 'project-context [--workspace PROJECT]', 'commit-context [--workspace REPOSITORY]', 'rollback', 'uninstall (legacy installation; all recorded upgrades)', 'task begin --title TEXT [--mode MODE]', 'task list', 'task show ID', 'task define ID --criteria TEXT --required-checks label,label | --from-project', 'task checkpoint ID --note TEXT [--status running|paused|blocked|cancelled]', 'task check ID [--label NAME] -- executable arguments', 'task complete ID --summary TEXT [--skip-reason TEXT] [--acceptance-note TEXT]']
+    commands: ['operations-status', 'execution-status', 'projects list | projects add ALIAS --path CHECKOUT', 'jobs submit --image sha256:ID -- executable arguments', 'jobs start|status|show|cancel|logs|remove ID', 'jobs list', 'validate', 'install [--delegation automatic|manual|read-only] [--model sonnet|opus|haiku]', 'doctor', 'status', 'project-context [--workspace PROJECT]', 'commit-context [--workspace REPOSITORY]', 'rollback', 'uninstall (legacy installation; all recorded upgrades)', 'task begin --title TEXT [--mode MODE]', 'task list', 'task show ID', 'task define ID --criteria TEXT --required-checks label,label --check-commands JSON | --from-project', 'task checkpoint ID --note TEXT [--status running|paused|blocked|cancelled]', 'task check ID [--label NAME] -- executable arguments', 'task complete ID --summary TEXT [--skip-reason TEXT] [--acceptance-note TEXT]']
   };
   else throw new Error(`Unknown command: ${command}`);
   process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);

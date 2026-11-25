@@ -7,6 +7,13 @@ description: Coordinate long staged implementation with durable checkpoints and 
 
 The main session coordinates. Subagents do not talk to or spawn one another.
 
+Choose coordination when independent investigations, separable implementation,
+or durable staged handoffs justify it. A multi-file change alone is insufficient.
+Reconsider after initial investigation and when complexity changes; users should
+not need to request delegation. Stop parallel work when findings converge or
+integration costs outweigh further independent evidence. Competing fixes are
+experimental and off by default; a disposable worktree is not a sandbox.
+
 Before each worker, define its bounded task, model, access, expected result, and
 reason delegation is useful. Automatic mode permits bounded reader/writer
 assignments without per-agent approval. Respect explicitly selected restrictive

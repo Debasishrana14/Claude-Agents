@@ -87,6 +87,31 @@ when a workflow changes, alongside the runtime suite. Record the limits of every
 published comparison. No model-driven comparative trials are supplied by this
 document, and no productivity improvement is claimed.
 
+## Current improvement baseline and pending trials
+
+The pre-change source revision for this improvement cycle is
+`d8353a9b273c89438b70f93fd927344f24b1d285`. Preserve that revision as the
+before condition; do not reconstruct it from modified source or run evaluation
+inside the harness checkout. Runtime regression cases now cover unbound required
+labels, failure persistence across checkpoints, ignored declared input changes,
+and bounded plugin startup context. These deterministic cases do not measure
+solver quality or delegation judgment.
+
+Freeze task prompts, private evaluator checks, and a human rubric before paid
+trials. In addition to the eight task classes above, include: a single-owner
+one-line fix; two genuinely independent diagnostic hypotheses; separable work
+with shared integration constraints; an unsafe shared repair that should be
+deferred; and a root-cause repair competing with a downstream symptom guard.
+Score both missed and unnecessary delegation, including duplicated reads,
+integration errors, total tokens, elapsed time and human corrections.
+
+No paid trial or calibration has run. First run a small explicitly budgeted
+calibration, then estimate repeated baseline/current trials including graders.
+Native agent permission coverage across named, generic, nested and unknown
+agent types and migration of existing global installations remain separate
+validation work. Competing implementations remain experimental and off by
+default. Do not advertise these pending items as completed capabilities.
+
 ## Research informing this protocol
 
 - [Claude Code best practices](https://code.claude.com/docs/en/best-practices):

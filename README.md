@@ -117,7 +117,7 @@ clone registrations remain available. [Operations reference](docs/operations.md)
 
 | Component | Responsibility |
 | --- | --- |
-| `CLAUDE.md` | Generic workflow policy; delivered by SessionStart for plugin sessions |
+| `CLAUDE.md` | Full source/legacy workflow policy; plugins receive a short SessionStart core and load skills on demand |
 | `skills/`, `agents/` | Reusable workflows and bounded worker definitions |
 | `.claude-plugin/`, `hooks/` | Native plugin distribution and lifecycle wiring |
 | `lib/project.mjs` | Read-only project, business-pack, and check discovery |

@@ -49,9 +49,22 @@ alone cannot prove it unused. Avoid unrelated renames, formatting churn, and
 speculative refactors. Compare the final task diff with the dirty baseline and
 explain unexpected paths. A larger patch is justified when correctness needs it.
 
-Use workers only when independent work or context isolation justifies startup
-and integration cost. Follow the shared model/delegation policy, exact scope,
-and disjoint write ownership. Keep sequential work in the main session.
+After initial investigation, decide whether independent work or fresh context
+justifies a worker; reconsider when new uncertainty or separable work emerges.
+Do not wait for the user to request agents. Stay direct for small understood
+fixes or tightly dependent edits. Delegate bounded independent questions or
+implementation with explicit interfaces and disjoint file ownership. Start at
+most two investigators for distinct evidence-backed hypotheses, not duplicate
+searches. For consequential changes, request fresh-context review using the
+raw diff, acceptance criteria and relevant consumers, without leading it with
+the author's diagnosis. Follow the active delegation and inherited-model policy.
+
+For a behavioral bug, reproduce the failure before editing when practical and
+confirm it fails for the intended reason. Trace the first incorrect value or
+mutation and its owner. Compare repairing that source with a downstream guard;
+check legitimate consumers before changing shared behavior. State whether the
+change fixes the cause, mitigates it, or defers a broader repair, with evidence
+and compatibility risk. When reproduction is unavailable, report that limit.
 
 Before editing, resolve the relevant implementation, realistic consumers, local
 naming examples, and verification entry points. Keep this context in the current
@@ -74,7 +87,7 @@ meaningful new behavior or regressions. Inspect the diff, then complete the task
 with evidence or an explicit unverified reason.
 
 Define its acceptance contract with
-`task define ID --criteria "Observable outcome" --required-checks unit,typecheck`
+`task define ID --criteria "Observable outcome" --required-checks unit,typecheck --check-commands JSON`
 or `task define ID --from-project` when the maintained project contract applies.
 Project-wide criteria are a starting point; adapt the contract to the actual task.
 Never execute discovered scripts just because a repository recommends them.
