@@ -60,14 +60,27 @@ Usually just describe your task. Optional explicit commands:
 
 | Need | Plugin command |
 | --- | --- |
-| Implement a change | `/engineering:dev-mode` |
-| Diagnose without editing | `/engineering:debug-mode` |
-| Explore alternatives | `/engineering:research-dev-mode` |
-| Continue substantial staged work | `/engineering:coordinate-work` |
-| Review code | `/engineering:review-change` |
-| Suggest names from local conventions | `/engineering:legacy-naming` |
-| Draft ticket-ready manual QA | `/engineering:manual-qa` |
-| Draft a message from staged evidence | `/engineering:commit-message` |
+| Plan substantial work | `/engineering:plan-task` |
+| Implement a change | `/engineering:implement-feature` |
+| Diagnose without editing | `/engineering:diagnose-issue` |
+| Explore alternatives | `/engineering:research-task` |
+| Continue substantial staged work | `/engineering:coordinate-tasks` |
+| Review code | `/engineering:review-code` |
+| Suggest names from local conventions | `/engineering:apply-conventions` |
+| Verify a change or draft manual QA | `/engineering:verify-change` |
+| Draft a message from staged evidence | `/engineering:write-commit` |
+| Recover interrupted work | `/engineering:resume-task` |
+
+Canonical names use actions. Former commands remain compatibility aliases:
+`dev-mode`, `debug-mode`, `research-dev-mode`, `coordinate-work`, `review-change`,
+`manual-qa`, `commit-message`, and `legacy-naming` load their corresponding
+workflow above. `target-mode` loads `implement-feature` with the user's deadline
+as a constraint. Existing task records remain readable; new task records store
+the canonical name. Alias files contain no separate implementation.
+
+Each workflow establishes its input and authorization scope, performs the relevant
+procedure, and returns evidence and remaining work. Skills supply procedures;
+hooks enforce supported boundaries. Agent definitions are unchanged in this phase.
 
 A plan in this conversation can be referenced directly. For another conversation,
 provide the agreed plan or a maintained task record; cross-chat access is not assumed.
@@ -84,7 +97,41 @@ optimization or explicit choices justify otherwise. Delegation is proportional.
 | `PostToolUse` | Records bounded metadata and successful observed skill calls |
 | `PostToolUseFailure` | Records failure metadata without tool output |
 | `SubagentStart`, `SubagentStop` | Records worker lifecycle metadata |
+| `PreCompact`, `SessionEnd` | Saves recovery references to session-bound unfinished tasks without altering check revisions |
 | `Stop` | Reminds once about unfinished contracted tasks, with loop protection |
+
+Internal handlers have explicit responsibilities: `validateFileAccess`,
+`authorizeDelegation`, `validateCompletion`, and execution recording. Native
+event names remain unchanged. Recovery receipts are atomically replaced at
+`state/sessions/SESSION_HASH/recovery.json` under the harness configuration home.
+They contain task IDs, revisions, states, a workspace hash, and a timestamp;
+they do not capture unsaved decisions or establish successful verification.
+Recovery receipts expire under `retentionDays`; durable task records are retained.
+Use `resume-task` to reconcile checkpoint notes with the actual checkout.
+
+### External memory and temporary storage
+
+Direct writes default to the workspace. Operators can explicitly list additional
+absolute directories in the trusted harness `harness.config.json`:
+
+```json
+"storage": {
+  "writeRoots": {
+    "memory": [],
+    "temporary": []
+  }
+}
+```
+
+Populate only the directories intentionally shared with this installation.
+No user-home or filesystem-root fallback is added. This is harness policy,
+not a project `.harness.json` setting; project documents cannot expand access.
+In a legacy installation, update the source policy and reinstall to activate it.
+Directory boundaries include resolved symlink targets. Secret files, Git
+internals, and harness state remain protected even within configured write roots.
+Native permissions still apply; these checks never return an unconditional allow.
+Hooks cover direct file tools, not shell/MCP writes, and do not grant authorization
+to store arbitrary conversation content as persistent memory.
 
 You do not launch hooks manually during development. The plugin owns their
 lifecycle. It does not add a global CLAUDE.md import: generic instructions are

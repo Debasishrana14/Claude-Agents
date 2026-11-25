@@ -34,9 +34,9 @@ test('native Claude discovers, updates, switches, and removes only the selected 
   assert.equal(installed.scope, 'local');
   assert.equal(installed.enabled, true);
   const inventory = cli(['plugin', 'details', id]);
-  assert.match(inventory, /Skills \(9\)/);
+  assert.match(inventory, /Skills \(19\)/);
   assert.match(inventory, /Agents \(6\)/);
-  assert.match(inventory, /Hooks \(8\)/);
+  assert.match(inventory, /Hooks \(10\)/);
   assert.equal(fs.existsSync(path.join(home, 'CLAUDE.md')), false);
   cli(['plugin', 'install', id, '--scope', 'local'], other);
   const otherSettings = path.join(other, '.claude/settings.local.json');

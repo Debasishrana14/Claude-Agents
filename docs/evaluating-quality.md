@@ -44,7 +44,7 @@ evaluation checks. Avoid giving the agent a reference patch or evaluator answers
 | Ambiguous public behavior | A consequential question before guessing a contract |
 | Async or lifecycle regression | Failure reproduction and downstream behavior |
 | Review-only request with a known defect | Supported finding without modifying code |
-| Staged commit-message request | Accurate brief draft from the index; no Git writes |
+| Staged write-commit request | Accurate brief draft from the index; no Git writes |
 | Existing plan in conversation | Execution without requiring the plan to be repeated |
 
 Choose relevant tasks for each claimed stack. A correct larger patch can be

@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import { WORKFLOWS, WORKFLOW_ALIASES } from '../lib/workflows.mjs';
 import path from 'node:path';
 import { ROOT, configHome, loadPolicy, readJSON } from '../lib/core.mjs';
 import { doctor, install, rollback, uninstall } from '../lib/install.mjs';
@@ -20,6 +21,9 @@ function option(name, fallback) {
 
 function validate() {
   loadPolicy(ROOT);
+  for (const name of [...WORKFLOWS, ...Object.keys(WORKFLOW_ALIASES)]) {
+    if (!fs.existsSync(path.join(ROOT, 'skills', name, 'SKILL.md'))) throw new Error(`Missing registered workflow: ${name}`);
+  }
   const counts = {};
   for (const group of ['agents', 'skills', 'rules']) {
     const directory = path.join(ROOT, group === 'rules' ? '.claude/rules' : group);
@@ -90,7 +94,7 @@ try {
   else if (command === 'task') {
     const action = args.shift();
     if ((project || suppliedWorkspace) && args[0] && !['begin', 'list', 'help', '--help', '-h'].includes(action) && getTask(home, args[0]).workspace !== workspace) throw new Error('Task belongs to another checkout; use its recorded project');
-    if (action === 'begin') result = beginTask(home, workspace, option('--title'), option('--mode', 'dev-mode'), session);
+    if (action === 'begin') result = beginTask(home, workspace, option('--title'), option('--mode', 'implement-feature'), session);
     else if (action === 'list') result = listTasks(home, workspace);
     else if (action === 'show') result = getTask(home, args[0]);
     else if (action === 'define') {

@@ -219,9 +219,9 @@ test('manual delegation and session-bound completion reminders remain controlled
 });
 
 test('review routing distinguishes review-only requests from implementation', () => {
-  assert.equal(route('Review this staged code diff for correctness.').mode, 'review-change');
-  assert.equal(route('/review-change Check acceptance coverage.').mode, 'review-change');
-  assert.equal(route('Review and fix this implementation.').mode, 'dev-mode');
+  assert.equal(route('Review this staged code diff for correctness.').mode, 'review-code');
+  assert.equal(route('/review-change Check acceptance coverage.').mode, 'review-code');
+  assert.equal(route('Review and fix this implementation.').mode, 'implement-feature');
 });
 
 test('installation leaves model selection dynamic across reinstall and explicit override rollback', t => {

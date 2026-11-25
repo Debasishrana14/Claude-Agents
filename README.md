@@ -55,9 +55,9 @@ claude
 
 Describe your task normally: `Fix the duplicate form submission.` The harness
 supplies the engineering process. You do not need to repeat its instructions.
-Optional overrides include `/engineering:dev-mode`, `/engineering:coordinate-work`,
-`/engineering:review-change`, `/engineering:manual-qa`, and
-`/engineering:commit-message`. Commit drafting does not authorize Git writes.
+Optional overrides include `/engineering:implement-feature`, `/engineering:coordinate-tasks`,
+`/engineering:review-code`, `/engineering:verify-change`, and
+`/engineering:write-commit`. Commit drafting does not authorize Git writes.
 
 ## Switch on or off
 
@@ -122,6 +122,7 @@ clone registrations remain available. [Operations reference](docs/operations.md)
 | `.claude-plugin/`, `hooks/` | Native plugin distribution and lifecycle wiring |
 | `lib/project.mjs` | Read-only project, business-pack, and check discovery |
 | `lib/runtime.mjs` | Hooks, private receipts, task contracts, and verification records |
+| `lib/hook-policy.mjs`, `lib/workflows.mjs` | Policy handlers, canonical workflows, and migration aliases |
 | `lib/install.mjs` | Legacy transactional installation, rollback, and migration removal |
 | `lib/git-context.mjs`, `lib/jobs.mjs` | Staged evidence and optional isolated jobs |
 | `release.config.json`, `lib/release.mjs` | Reviewed public file list and clean export |

@@ -1,18 +1,12 @@
 ---
 name: target-mode
-description: Deliver a narrowly scoped implementation under an explicit deadline or time budget, with stated tradeoffs and focused validation.
+description: Compatibility alias for implement-feature with an explicit deadline or time budget.
 ---
 
-# Target Mode
+# Compatibility Alias
 
-Confirm the concrete target and any stated deadline or time budget. Choose the
-shortest safe path to that target. Avoid speculative refactors, broad research,
-architecture redesign, optional cleanup, and nonessential agents.
-
-Work directly unless one worker permitted by the active delegation profile can
-finish a genuinely independent part faster. Never trade away data safety, repository integrity, authorization,
-or truthful reporting for speed.
-
-Run relevant focused checks within the time budget. Record checks for
-substantial work needing recovery with the runtime task CLI. State the result, shortcuts taken,
-unvalidated behavior, and deliberately deferred follow-up.
+Use `implement-feature` (plugin command `/engineering:implement-feature`).
+Load that skill, or read `../implement-feature/SKILL.md` if discovery fails.
+Carry the user's deadline or budget into the task constraints. Prefer the
+smallest sufficient scope and focused verification; disclose deferred work.
+A deadline does not authorize weaker permissions or a model downgrade.

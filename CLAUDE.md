@@ -12,15 +12,17 @@ affects cost, permissions, or a consequential decision.
 
 | Request | Workflow | Outcome |
 | --- | --- | --- |
-| Implement, fix, clean up, refactor | `/dev-mode` | Implement and validate the authorized change |
-| Investigate a failure without requesting a fix | `/debug-mode` | Evidence-backed diagnosis |
-| Explore theory, feasibility, tradeoffs | `/research-dev-mode` | Findings and alternatives |
-| Deliver under an explicit time constraint | `/target-mode` | Scoped delivery with limitations |
-| Long work needing durable handoffs | `/coordinate-work` | Checkpointed progress |
-| Write manual QA cases or a ticket-ready QA update | `/manual-qa` | Human-executable cases and an evidence-aware ticket draft |
-| Draft a staged commit message or commit grouping strategy | `/commit-message` | Index-based message following repository conventions |
-| Recommend variable/function names using legacy conventions | `/legacy-naming` | Evidence-based naming recommendations and compatibility assessment |
-| Review code or a proposed change | `/review-change` | Supported correctness findings and acceptance gaps |
+| Plan a substantial change | `/plan-task` | Scope, dependencies, acceptance criteria, and verification |
+| Resume saved or interrupted work | `/resume-task` | Reconciled state and remaining work |
+| Implement, fix, clean up, refactor | `/implement-feature` | Implement and validate the authorized change |
+| Investigate a failure without requesting a fix | `/diagnose-issue` | Evidence-backed diagnosis |
+| Explore theory, feasibility, tradeoffs | `/research-task` | Findings and alternatives |
+| Deliver under an explicit time constraint | `/implement-feature` | Scoped delivery with limitations |
+| Long work needing durable handoffs | `/coordinate-tasks` | Checkpointed progress |
+| Verify a change or draft manual QA | `/verify-change` | Execution evidence or clearly marked proposed cases |
+| Draft a staged commit message or commit grouping strategy | `/write-commit` | Index-based message following repository conventions |
+| Recommend variable/function names using legacy conventions | `/apply-conventions` | Evidence-based naming recommendations and compatibility assessment |
+| Review code or a proposed change | `/review-code` | Supported correctness findings and acceptance gaps |
 | Ordinary question or discussion | No skill required | Answer directly |
 
 For "diagnose and fix", use development with an investigation phase. Load the
@@ -37,7 +39,7 @@ the full QA skill only when useful. Draft commit messages when requested.
 These outputs remain drafts unless a ticket write or Git action is authorized.
 Naming reviews are read-only unless the user also asks to apply the renames;
 study the application code before claiming its naming conventions are known.
-Consult the legacy-naming workflow for project naming decisions and reuse its
+Consult the apply-conventions workflow for project naming decisions and reuse its
 established local evidence. Avoid new names that require arguments to complete
 their meaning; respect explicit project/user requirements and fixed contracts.
 
@@ -121,7 +123,7 @@ exploration/implementation/verification phases when uncertainty warrants them.
 
 For multi-step changes, use the runtime CLI supplied by the SessionStart hook:
 
-1. `task begin --title "Short non-sensitive objective" --mode dev-mode`.
+1. `task begin --title "Short non-sensitive objective" --mode implement-feature`.
    Define substantial tasks with `task define ID --criteria "Expected outcome"
    --required-checks unit,typecheck --check-commands JSON`, or `task define ID --from-project`.
    With `--from-project`, optional `--criteria` adds the task-specific outcome.
@@ -139,7 +141,7 @@ Contracted tasks require all named checks against current source and an
 contract must match recorded argv; a trivial substitute cannot count as that
 configured check. Records cannot establish whether arbitrary tests are sufficient,
 and authored acceptance notes are not independent verification. Review substantial
-changes using `/review-change`, fix supported findings within scope, and rerun
+changes using `/review-code`, fix supported findings within scope, and rerun
 affected checks before completion. Do not weaken a contract to hide a failure.
 
 Use checkpoints with `--status paused`, `blocked`, or `cancelled` when applicable.

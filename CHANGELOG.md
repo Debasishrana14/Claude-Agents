@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- Introduce canonical action-based workflow names with compatibility aliases;
+  add planning and interrupted-task recovery, and consolidate change verification.
+- Separate file access, delegation approval, and completion policy handlers.
+  Support explicit operator-configured memory and temporary write directories.
+- Record bounded recovery references before compaction and at session end,
+  preserving verification revisions and applying session-receipt retention.
+- Keep agent definitions and instruction-level model ceilings unchanged for the
+  later agent refactor.
+
 - Bind every required validation check to explicit argv; reject unbound legacy
   contracts until redefined. Keep failures open across checkpoints until the
   same check succeeds on current inputs.

@@ -134,7 +134,7 @@ Fix duplicate submission. Keep the existing validation and appearance.
 For a plan already in the same conversation:
 
 ```text
-/engineering:coordinate-work Execute the plan we agreed above.
+/engineering:coordinate-tasks Execute the plan we agreed above.
 ```
 
 Claude should select a proportional workflow. Small fixes do not require a large

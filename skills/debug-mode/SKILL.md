@@ -1,18 +1,11 @@
 ---
 name: debug-mode
-description: Investigate failures and establish root causes when diagnosis is requested without implementation. For diagnose-and-fix requests, use development with an investigation phase.
+description: Compatibility alias for diagnose-issue. Use when the user explicitly invokes the former debug-mode command.
 ---
 
-# Debug Mode
+# Compatibility Alias
 
-Restate the symptom and define what evidence would establish a root cause. Use
-the narrowest effective combination of reproduction, tracing, comparison,
-hypothesis elimination, history, boundary analysis, lifecycle analysis, or
-temporary instrumentation.
-
-Work directly by default. If a separate debugger or research worker would
-materially isolate noisy investigation, follow the active delegation profile.
-
-Stop at an evidence-backed root cause. Report affected scope, rejected
-hypotheses, fix constraints, confidence, and unknowns. Do not implement unless
-the user also asks for a fix.
+Continue the request using `diagnose-issue` (plugin command `/engineering:diagnose-issue`).
+Load that skill through the Skill tool; if unavailable, read
+`../diagnose-issue/SKILL.md` relative to this skill directory. Preserve the user's scope,
+format, and authorization. Do not run both workflows or create a second task.

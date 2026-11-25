@@ -114,12 +114,12 @@ test('plugin startup supplies generic policy and namespaced workflow routing wit
   const start = handleHook(ROOT, home, input(workspace), { plugin: true }).hookSpecificOutput.additionalContext;
   assert.match(start, /Engineering harness v[\d.]+ hook is active/);
   assert.match(start, /Stage, unstage, commit.*each require explicit user authorization/);
-  assert.match(start, /engineering:dev-mode/);
+  assert.match(start, /engineering:implement-feature/);
   assert.match(start, /workers inherit/i);
   assert.equal(fs.existsSync(path.join(home, 'CLAUDE.md')), false);
   assert.equal(fs.existsSync(path.join(home, 'settings.json')), false);
   const routed = handleHook(ROOT, home, input(workspace, 'UserPromptSubmit', { prompt: '/engineering:coordinate-work Execute the agreed plan.' }), { plugin: true });
-  assert.match(routed.hookSpecificOutput.additionalContext, /Use \/engineering:coordinate-work/);
+  assert.match(routed.hookSpecificOutput.additionalContext, /Use \/engineering:coordinate-tasks/);
   assert.equal(status(home, workspace).recentEvents.find(event => event.event === 'SessionStart').transport, 'plugin');
 });
 
